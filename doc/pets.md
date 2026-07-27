@@ -7,6 +7,9 @@ Endpoint : GET /api/pets
 
 Deskripsi : Mengambil seluruh data pet. Hanya dapat diakses oleh ADMIN / SUPER ADMIN
 
+- Headers : Bearer <access_token>
+
+
 Request Body:
 Tidak ada request body (karena menggunakan method Get)
 
