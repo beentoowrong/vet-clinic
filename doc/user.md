@@ -5,7 +5,7 @@ Base URL : /api/users
 ## Get All User
 Endpoint : GET /api/users
 
-Deskripsi : Mengambil seluruh data user. Endpoint ini hanya dapat diakses oleh ROLE ADMIN.
+Deskripsi : Mengambil seluruh data user. Hanya dapat diakses oleh ADMIN / SUPER ADMIN
 
 - Headers : Bearer <access_token>
 
@@ -53,10 +53,10 @@ Jika user tidak punya akses
 }
 ```
 
-## Get User
+## Get User by ID
 Endpoint : GET /api/users/:id
 
-Deskripsi : Mengambil data user berdasarkan id user (role owner/doctor). Endpoint ini hanya bisa digunakan oleh ROLE ADMIN.
+Deskripsi : Mengambil data user berdasarkan ID. Hanya dapat diakses oleh ADMIN / SUPER ADMIN.
 
 - Headers : Bearer <access_token>
 
@@ -73,7 +73,7 @@ Responses Body:
         "name" : "John Doe",
         "email" : "johndoe@example.com",
         "role" : "OWNER",
-        "createdAt" : "2026-07-23"
+        "createdAt": "2026-07-23T10:00:00.000Z"
     }
     }
 }
@@ -100,3 +100,158 @@ Jika user tidak punya akses:
 }
 ```
 
+## Post User 
+Endpoint : POST /api/users
+
+Deskripsi : 
+Membuat user baru.
+
+ADMIN → hanya bisa buat OWNER & DOCTOR
+SUPER ADMIN → bisa buat ADMIN (namun admin tidak bisa membuat admin lain)
+
+- Headers : Bearer <access_token>
+
+Request Body :
+```
+{
+    "name" : "drh.claire",
+    "email" : "drhclaire@example.com",
+    "password" : "supersecretpass",
+    "phone_number" : "081212121212",
+    "role" : "DOCTOR"
+}
+```
+
+Success Response (201) 
+```
+{
+    "status" : 201,
+    "message" : "User created Successfully",
+    "data" : {
+        "id" : 3,
+        "name" : "drh.claire",
+        "email" : "drhclaire@example.com",
+        "phone_number" : "081212121212",
+        "role" : "DOCTOR"
+    }
+}
+```
+
+Error Response
+- Bad Request (400)
+```
+{
+    "status" : 400,
+    "message" : "Email already registered",
+    "data" : null
+}
+```
+- Unauthorized Response (401)
+Jika token tidak ada atau tidak valid:
+```
+{
+  "status": 401,
+  "message": "Unauthorized",
+  "data": null
+}
+```
+- Forbidden Responses (403)
+```
+{ 
+    "status": 403, 
+    "message": "You are not allowed to create admin", 
+    "data": null 
+}
+```
+
+## Update User
+Endpoint : PATCH /api/users/:id
+
+Deskripsi : Digunakan untuk mengupdate akun user (ROLE OWNER, DOCTOR, ADMIN). Endpoint ini hanya dapat diakses oleh Super Admin (namun, admin yang di buat oleh Super Admin tidak bisa buat admin lain).
+
+- Headers : Bearer <access_token>
+
+Request Body :
+```
+{
+    "name" : "drh.claire",
+    "email" : "drhclaireupdate@example.com",
+    "password" : "supersecretpassupdate",
+    "phone_number" : "081234567890",
+    "role" : "DOCTOR"
+}
+```
+
+Response Body
+Success Response (200) 
+```
+{
+    "status" : 200,
+    "message" : "User created Successfully",
+    "data" : {
+        "id" : 3,
+        "name" : "drh.claire",
+        "email" : "drhclaire@example.com",
+        "phone_number" : "081234567890",
+        "role" : "DOCTOR"
+    }
+}
+```
+
+Error Response
+- Bad Request (400)
+```
+{
+    "status" : 400,
+    "message" : "Email already registered",
+    "data" : null
+}
+```
+- Unauthorized Response (401)
+Jika token tidak ada atau tidak valid:
+```
+{
+  "status": 401,
+  "message": "Unauthorized",
+  "data": null
+}
+```
+- Forbidden Responses (403)
+```
+{ 
+    "status": 403, 
+    "message": "You are not allowed to create admin", 
+    "data": null 
+}
+```
+
+## Delete User
+Endpoint : DELETE /api/users/:id
+
+Deskripsi : 
+Menghapus user (soft delete)
+
+ADMIN → hanya delete OWNER & DOCTOR
+SUPER ADMIN → bisa delete semua
+
+- Headers : Bearer <access_token>
+
+Response Body (Succes)
+```
+{
+    "status": 200, 
+    "message": "User deleted successfully", 
+    "data": null
+}
+```
+
+Response Body (Fail)
+- Unauthorized Response (401)
+Jika token tidak ada atau tidak valid:
+```
+{
+  "status": 401,
+  "message": "Unauthorized",
+  "data": null
+}
+```

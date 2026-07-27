@@ -170,3 +170,20 @@ Jika token tidak ada atau tidak valid:
   "message": "Unauthorized",
   "data": null
 }
+```
+
+
+## Logout 
+Endpoint : PATCH /api/auth/profile
+
+Deskripsi : Logout pengguna dan invalidate token. Memerlukan Bearer token di header Authorization.
+
+- Headers : Bearer <access_token>
+
+Response Body (Success) :
+```
+{
+  "message" : "Logout Berhasil",
+  "status" : 200
+}
+```
