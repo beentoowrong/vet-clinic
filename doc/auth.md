@@ -6,6 +6,8 @@ Base URL : /api/auth
 Endpoint
 POST /api/auth/register
 
+Deskripsi : mendaftarkan user baru ROLE OWNER
+
 Request Body
 ```
 {
@@ -120,3 +122,51 @@ Jika user tidak punya akses:
 }
 ```
 
+## Update Profile
+Endpoint : PATCH /api/auth/profile
+
+Deskripsi : User dapat mengupdate data dirinya sendiri, termasuk email dengan validasi. Endpoint ini hanya bisa dilakukan oleh ROLE OWNER
+
+- Headers : Bearer <access_token>
+
+Request Body : 
+```
+{
+  "name": "John Doe Update",
+  "email": "johndoe@example.com",
+  "password": "secret123",
+  "phone_number": "08987654321"
+}
+```
+
+Responses Body (Success)
+```
+{
+  "status" : 200,
+  "message" : "User updated successfully",
+  "data" : {
+    "name": "John Doe Update",
+    "email": "johndoe@example.com",
+    "password": "secret123",
+    "phone_number": "08987654321"
+  }
+}
+```
+
+Responses Body (Fail) :
+- Bad Request (400)
+```
+{
+  "status" : 400,
+  "message" : "Email already in use",
+  "data" : null
+}
+```
+- Unauthorized Response (401)
+Jika token tidak ada atau tidak valid:
+```
+{
+  "status": 401,
+  "message": "Unauthorized",
+  "data": null
+}
