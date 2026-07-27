@@ -1,4 +1,4 @@
-# User API Specification
+# Users API Specification
 
 Base URL : /api/users
 
@@ -117,7 +117,7 @@ Request Body :
     "name" : "drh.claire",
     "email" : "drhclaire@example.com",
     "password" : "supersecretpass",
-    "phone_number" : "081212121212",
+    "phoneNumber" : "081212121212",
     "role" : "DOCTOR"
 }
 ```
@@ -131,7 +131,7 @@ Success Response (201)
         "id" : 3,
         "name" : "drh.claire",
         "email" : "drhclaire@example.com",
-        "phone_number" : "081212121212",
+        "phoneNumber" : "081212121212",
         "role" : "DOCTOR"
     }
 }
@@ -177,7 +177,7 @@ Request Body :
     "name" : "drh.claire",
     "email" : "drhclaireupdate@example.com",
     "password" : "supersecretpassupdate",
-    "phone_number" : "081234567890",
+    "phoneNumber" : "081234567890",
     "role" : "DOCTOR"
 }
 ```
@@ -192,7 +192,7 @@ Success Response (200)
         "id" : 3,
         "name" : "drh.claire",
         "email" : "drhclaire@example.com",
-        "phone_number" : "081234567890",
+        "phoneNumber" : "081234567890",
         "role" : "DOCTOR"
     }
 }

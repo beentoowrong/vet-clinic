@@ -14,7 +14,7 @@ Request Body
   "name": "John Doe",
   "email": "johndoe@example.com",
   "password": "secret",
-  "phone_number": "08123456789"
+  "phoneNumber": "08123456789"
 }
 ```
 
@@ -27,7 +27,7 @@ Success Response (201 Created)
     "id": 1,
     "name": "John Doe",
     "email": "johndoe@example.com",
-    "phone_number": "08123456789"
+    "phoneNumber": "08123456789"
   }
 }
 ```
@@ -62,7 +62,7 @@ Success Response (200 OK)
     "id": 1,
     "name": "John Doe",
     "email": "johndoe@example.com",
-    "phone_number": "08123456789",
+    "phoneNumber": "08123456789",
     "access_token": "jwt_token_here"
   }
 }
@@ -135,7 +135,7 @@ Request Body :
   "name": "John Doe Update",
   "email": "johndoe@example.com",
   "password": "secret123",
-  "phone_number": "08987654321"
+  "phoneNumber": "08987654321"
 }
 ```
 
@@ -148,7 +148,7 @@ Responses Body (Success)
     "name": "John Doe Update",
     "email": "johndoe@example.com",
     "password": "secret123",
-    "phone_number": "08987654321"
+    "phoneNumber": "08987654321"
   }
 }
 ```
