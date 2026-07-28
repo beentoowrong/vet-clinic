@@ -61,7 +61,7 @@ Deskripsi : Mengambil data user berdasarkan ID. Hanya dapat diakses oleh ADMIN /
 - Headers : Bearer <access_token>
 
 Request Body:
-Tidak a darequest body (karena menggunakan method Get)
+Tidak ada request body (karena menggunakan method Get)
 
 Responses Body: 
 ```
@@ -74,7 +74,6 @@ Responses Body:
         "email" : "johndoe@example.com",
         "role" : "OWNER",
         "createdAt": "2026-07-23T10:00:00.000Z"
-    }
     }
 }
 ```
