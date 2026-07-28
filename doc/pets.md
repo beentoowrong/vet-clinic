@@ -65,7 +65,7 @@ Jika user tidak punya akses
 ```
 
 ## Get Pet by ID
-Endpoint : GET api/pets/:id
+Endpoint : GET /api/pets/:id
 
 Deskripsi : Mengambil data pet berdasarkan ID. Hanya dapat diakses oleh ADMIN / SUPER ADMIN.
 
@@ -117,7 +117,7 @@ Jika user tidak punya akses:
 ```
 
 ## Get My Pets
-Endpoint :  GET api/my-pets
+Endpoint :  GET /api/pets/me
 
 Deskripsi : Mengambil seluruh data pet. Hanya dapat diakses oleh Owner.
 
@@ -130,7 +130,7 @@ Responses Body:
 ```
 {
     "status" : 200,
-    "message" : "Success"
+    "message" : "Success",
     "data" : [
         {
             "id": 1,
@@ -184,7 +184,7 @@ Jika user tidak memiliki data pet sama sekali
 ```
 
 ## Get My Pets by Id
-Endpoint :  GET api/my-pets/:id
+Endpoint :  GET /api/pets/me/:id
 
 Deskripsi : Mengambil 1 data pet berdasarkan. Hanya dapat diakses oleh Owner.
 
@@ -242,7 +242,7 @@ Jika user tidak memiliki data pet sama sekali
 ```
 
 ## Post Pet
-Endpoint : POST api/pets
+Endpoint : POST /api/pets
 
 Deskripsi:  Membuat pet baru. Endpoint ini digunakan oleh role ADMIN dan OWNER
 
@@ -306,3 +306,98 @@ Jika token tidak ada atau tidak valid:
 }
 ```
 
+## Update Pet
+Endpoint : PATCH /api/pets/:id
+
+Deskripsi : Mengubah data Pet. Endpoint ini digunakan oleh ROLE ADMIN dan OWNER.
+
+Headers : Bearer <access_token>
+
+Request Body :
+```
+{
+    "petName": "Pororo",
+    "petType": "Dog",
+    "petRace": "Siberian Husky",
+    "petGender": "MALE",
+    "age" : 1,
+    "ownerId" : 3
+}
+```
+
+Responses Body:
+Success Responses (200)
+```
+{
+    "status" : 200,
+    "message" : "Pet updated succesfully",
+    "data" : {
+        "petName": "Pororo",
+        "petType": "Dog",
+        "petRace": "Siberian Husky",
+        "petGender": "MALE",
+        "age" : 1
+    }
+}
+```
+
+Error Response
+- Bad Request (400)
+```
+{
+    "status" : 400,
+    "message" : "Email already registered",
+    "data" : null
+}
+```
+- Unauthorized Response (401)
+Jika token tidak ada atau tidak valid:
+```
+{
+  "status": 401,
+  "message": "Unauthorized",
+  "data": null
+}
+```
+- Forbidden Responses (403)
+```
+{ 
+    "status": 403, 
+    "message": "You are not allowed to create admin", 
+    "data": null 
+}
+```
+
+## Delete Pet 
+Endpoint : DELETE /api/pets/:id
+
+Deskripsi : Menghapus data Pet. Endpoint ini digunakan oleh ROLE ADMIN dan OWNER.
+
+Headers : Bearer <access_token>
+
+Response Body (Success) : 
+```
+{
+  "status": 200,
+  "message": "Pet deleted successfully",
+  "data": null
+}
+```
+
+Response Body (Fail)
+- Bad Request (400)
+```
+{
+  "status": 400,
+  "message": "Pet has active appointments",
+  "data": null
+}
+```
+- Unauthorized Responses (401)
+```
+{
+  "status": 403,
+  "message": "You are not allowed to delete this pet",
+  "data": null
+}
+```

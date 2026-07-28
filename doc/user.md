@@ -186,7 +186,7 @@ Success Response (200)
 ```
 {
     "status" : 200,
-    "message" : "User created Successfully",
+    "message" : "User updated Successfully",
     "data" : {
         "id" : 3,
         "name" : "drh.claire",
