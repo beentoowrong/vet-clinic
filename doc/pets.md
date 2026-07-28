@@ -320,8 +320,7 @@ Request Body :
     "petType": "Dog",
     "petRace": "Siberian Husky",
     "petGender": "MALE",
-    "age" : 1,
-    "ownerId" : 3
+    "age" : 1
 }
 ```
 
