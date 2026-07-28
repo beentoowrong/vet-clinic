@@ -98,6 +98,14 @@ Jika user tidak punya akses:
   "data": null
 }
 ```
+- Not Found (404)
+```
+{
+  "status": 404,
+  "message": "User not found",
+  "data": null
+}
+```
 
 ## Post User 
 Endpoint : POST /api/users
@@ -105,8 +113,8 @@ Endpoint : POST /api/users
 Deskripsi : 
 Membuat user baru.
 
-ADMIN → hanya bisa buat OWNER & DOCTOR
-SUPER ADMIN → bisa buat ADMIN (namun admin tidak bisa membuat admin lain)
+- ADMIN → hanya bisa buat OWNER & DOCTOR (namun admin tidak bisa membuat admin lain)
+- SUPER ADMIN → bisa buat ADMIN, OWNER, DOCTOR
 
 - Headers : Bearer <access_token>
 
@@ -125,7 +133,7 @@ Success Response (201)
 ```
 {
     "status" : 201,
-    "message" : "User created Successfully",
+    "message" : "User created successfully",
     "data" : {
         "id" : 3,
         "name" : "drh.claire",
@@ -141,7 +149,7 @@ Error Response
 ```
 {
     "status" : 400,
-    "message" : "Email already registered",
+    "message" : "Invalid email format",
     "data" : null
 }
 ```
@@ -166,7 +174,7 @@ Jika token tidak ada atau tidak valid:
 ## Update User
 Endpoint : PATCH /api/users/:id
 
-Deskripsi : Digunakan untuk mengupdate akun user (ROLE OWNER, DOCTOR, ADMIN). Endpoint ini hanya dapat diakses oleh Super Admin (namun, admin yang di buat oleh Super Admin tidak bisa buat admin lain).
+Deskripsi : Digunakan untuk mengupdate akun user, dilakukan oleh ADMIN dan SUPERADMIN
 
 - Headers : Bearer <access_token>
 
@@ -175,7 +183,6 @@ Request Body :
 {
     "name" : "drh.claire",
     "email" : "drhclaireupdate@example.com",
-    "password" : "supersecretpassupdate",
     "phoneNumber" : "081234567890",
     "role" : "DOCTOR"
 }
@@ -202,7 +209,7 @@ Error Response
 ```
 {
     "status" : 400,
-    "message" : "Email already registered",
+    "message" : "Email already registered or invalid",
     "data" : null
 }
 ```
@@ -219,23 +226,53 @@ Jika token tidak ada atau tidak valid:
 ```
 { 
     "status": 403, 
-    "message": "You are not allowed to create admin", 
+    "message": "Forbiden", 
     "data": null 
 }
 ```
+- Not Found (404)
+```
+{
+  "status": 404,
+  "message": "User not found",
+  "data": null
+}
+```
+
+## Update Password User
+Endpoint : PATCH /api/users/:id/password
+
+Deskripsi : mengupdate password user, dilakukan oleh ADMIN dan SUPERADMIN
+
+- Headers : Bearer <access_token>
+
+Request Body 
+```
+{
+    "oldPassword": "oldpassword", 
+    "newPassword": "newsecurepassword" 
+}
+```
+
+Response Body (Success):
+```
+{
+    "status": 200, 
+    "message": "Password updated successfully", 
+    "data": null 
+}
+```
+
 
 ## Delete User
 Endpoint : DELETE /api/users/:id
 
 Deskripsi : 
-Menghapus user (soft delete)
-
-ADMIN → hanya delete OWNER & DOCTOR
-SUPER ADMIN → bisa delete semua
+Menghapus user (soft delete) yang hanya bisa di lakukan oleh ROLE ADMIN dan SUPERADMIN
 
 - Headers : Bearer <access_token>
 
-Response Body (Succes)
+Response Body (Success)
 ```
 {
     "status": 200, 
@@ -252,5 +289,130 @@ Jika token tidak ada atau tidak valid:
   "status": 401,
   "message": "Unauthorized",
   "data": null
+}
+```
+
+## Get Current User
+Endpoint: GET /api/users/me
+
+Deskripsi: Mengambil data user yang sedang login
+
+- Headers : Bearer <access_token>
+
+Request Body:
+Tidak ada request body (karena menggunakan method Get)
+
+Responses Body (Success):
+```
+{
+    "status" : 200,
+    "message" : "Success",
+    "data" : {
+        "id" : 1,
+        "name" : "John Doe",
+        "email" : "johndoe@example.com",
+        "role" : "OWNER",
+        "createdAt" : "2026-07-23"
+    }
+}
+```
+
+Responses Body (fail) :
+- Unauthorized Response (401) Jika token tidak ada atau tidak valid:
+```
+{
+  "status": 401,
+  "message": "Unauthorized",
+  "data": null
+}
+```
+- Forbidden Responses (403) Jika user tidak punya akses:
+```
+{
+  "status": 403,
+  "message": "Forbidden",
+  "data": null
+}
+```
+
+## Update Current User
+ENDPOINT : PATCH /api/users/me
+
+Deskripsi: User dapat mengupdate dirinya sendiri
+
+Header : Bearer <access_token>
+
+Request Body:
+```
+{
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "phoneNumber": "08123456789",
+}
+```
+
+Response Body (Success) :
+```
+{
+    "status": 200,
+    "message": "User updated successfully",
+    "data" : {
+        "name": "John Doe",
+        "email": "johndoe@example.com",
+        "phoneNumber": "08123456789"
+    }
+}
+```
+
+Response Body (Fail) :
+Error Response
+- Bad Request (400)
+```
+{
+    "status" : 400,
+    "message" : "Email already registered or invalid",
+    "data" : null
+}
+```
+- Unauthorized Response (401)
+Jika token tidak ada atau tidak valid:
+```
+{
+  "status": 401,
+  "message": "Unauthorized",
+  "data": null
+}
+```
+- Forbidden Responses (403)
+```
+{ 
+    "status": 403, 
+    "message": "Forbidden", 
+    "data": null 
+}
+```
+
+
+## Update Password Current User
+ENDPOINT : PATCH /api/users/me/password
+
+Deskripsi: User mengupdate password miliknya sendiri
+
+Header : Bearer <access_token>
+
+Request Body 
+```
+{
+    "oldPassword": "oldpassword", 
+    "newPassword": "newsecurepassword" 
+}
+```
+
+Response Body (Success):
+```
+{
+    "status": 200, 
+    "message": "Password updated successfully", 
+    "data": null 
 }
 ```
