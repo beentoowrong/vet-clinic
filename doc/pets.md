@@ -261,11 +261,12 @@ OWNER -> create pet untuk dirinya sendiri
 ### Request Body :
 ```
 {
-    "petName": "Pororo",
-    "petType": "Dog",
-    "petRace": "Siberian Husky",
-    "petGender": "MALE",
-    "age" : 1
+  "ownerId": 3,
+  "petName": "Pororo",
+  "petType": "Dog",
+  "petRace": "Siberian Husky",
+  "petGender": "MALE",
+  "age" : 1
 }
 ```
 
@@ -276,13 +277,13 @@ Success Response (201)
     "status" : 201,
     "message": "Pet created successfully",
     "data" : {
-        "id" : 6,
-        "petName" : "Pororo",
-        "petType" : "Dog",
-        "petRace" : "Siberian Husky",
-        "petGender" : "MALE",
-        "age" : 1,
-        "ownerId" : 3
+      "ownerId" : 3
+      "id" : 6,
+      "petName" : "Pororo",
+      "petType" : "Dog",
+      "petRace" : "Siberian Husky",
+      "petGender" : "MALE",
+      "age" : 1,
     }
 }
 ```
@@ -324,6 +325,7 @@ Headers : Bearer <access_token>
 ### Request Body :
 ```
 {
+    "ownerId": 3,
     "petName": "Pororo",
     "petType": "Dog",
     "petRace": "Siberian Husky",
@@ -339,11 +341,12 @@ Success Responses (200)
     "status" : 200,
     "message" : "Pet updated succesfully",
     "data" : {
-        "petName": "Pororo",
-        "petType": "Dog",
-        "petRace": "Siberian Husky",
-        "petGender": "MALE",
-        "age" : 1
+      "ownerId": 3,
+      "petName": "Pororo",
+      "petType": "Dog",
+      "petRace": "Siberian Husky",
+      "petGender": "MALE",
+      "age" : 1
     }
 }
 ```
@@ -353,7 +356,7 @@ Success Responses (200)
 ```
 {
     "status" : 400,
-    "message" : "Email already registered",
+    "message" : "Invalid input data",
     "data" : null
 }
 ```
@@ -400,7 +403,7 @@ Headers : Bearer <access_token>
   "data": null
 }
 ```
-- Unauthorized Responses (401)
+- Forbidden (403)
 ```
 {
   "status": 403,
