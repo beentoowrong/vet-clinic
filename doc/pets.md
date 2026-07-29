@@ -351,7 +351,7 @@ Success Responses (200)
 }
 ```
 
-### Responses Body (Success):
+### Responses Body (Fail):
 - Bad Request (400)
 ```
 {
@@ -373,7 +373,7 @@ Jika token tidak ada atau tidak valid:
 ```
 { 
     "status": 403, 
-    "message": "You are not allowed to create admin", 
+    "message": "You are not allowed to updated pet", 
     "data": null 
 }
 ```

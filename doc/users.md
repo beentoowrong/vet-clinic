@@ -120,6 +120,7 @@ Membuat user baru untuk OWNER, DOCTOR, ADMIN. Dapat digunakan oleh ADMIN (hanya 
 Authorization: Bearer <access_token>
 
 ### Request Body :
+- Untuk ROLE DOCTOR
 ```
 {
     "name" : "John Doe",
@@ -129,6 +130,7 @@ Authorization: Bearer <access_token>
     "role" : "DOCTOR"
 }
 ```
+- Untuk ROLE P
 
 ### Response Body (Success) :
 ```
