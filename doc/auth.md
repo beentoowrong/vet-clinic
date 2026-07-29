@@ -3,22 +3,23 @@
 Base URL : /api/auth
 
 ## Register User
-Endpoint
-POST /api/auth/register
+Endpoint : POST /api/auth/register
 
-Deskripsi : mendaftarkan user baru ROLE OWNER
+Deskripsi : Pendaftaran mandiri oleh Pemilik Hewan (Pet Owner). Hal ini akan otomais membuat record di table users dan table pet_owners.
 
-Request Body
+### Request Body :
 ```
 {
   "name": "John Doe",
   "email": "johndoe@example.com",
-  "password": "secret",
+  "password": "secretPassword123",
   "phoneNumber": "08123456789"
+  "address": "Jl. Kebayoran Lama"
 }
 ```
 
-Success Response (201 Created)
+### Responses Body (Success):
+Success (201 - Created)
 ```
 {
   "status": 201,
@@ -27,12 +28,17 @@ Success Response (201 Created)
     "id": 1,
     "name": "John Doe",
     "email": "johndoe@example.com",
+    "password": "secretPassword123",
     "phoneNumber": "08123456789"
+    "address": "Jl. Kebayoran Lama"
+    "role": "OWNER"
   }
+  "token": "jwt_token_here"
 }
 ```
 
-Error Response (400 Bad Request)
+### Responses Body (Fail):
+Bad Request (400)
 ```
 {
   "status": 400,
@@ -42,10 +48,11 @@ Error Response (400 Bad Request)
 ```
 
 ## Login User
-Endpoint
-POST /api/auth/login
+Endpoint POST /api/auth/login
 
-Request Body
+Deskripsi: Masuk ke sistem untuk mendapatkan token jwt.
+
+### Request Body :
 ```
 {
   "email": "johndoe@example.com",
@@ -53,21 +60,24 @@ Request Body
 }
 ```
 
-Success Response (200 OK)
+### Responses Body (Success):
+Success (200-OK)
 ```
 {
   "status": 200,
-  "message": "Login success",
+  "message": "Login successful",
   "data": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "johndoe@example.com",
-    "phoneNumber": "08123456789",
-    "access_token": "jwt_token_here"
+    "token": "jwt_token_here",
+    "user": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "johndoe@example.com",
+    }
   }
 }
 ```
 
+### Responses Body (Fail):
 Error Response (401 Unauthorized)
 ```
 {
@@ -82,9 +92,10 @@ Endpoint : POST /api/auth/logout
 
 Deskripsi : Logout pengguna dan invalidate token. Memerlukan Bearer token di header Authorization.
 
-- Headers : Bearer <access_token>
+- Headers 
+Authorization: Bearer <access_token>
 
-Response Body (Success) :
+### Responses Body (Success):
 ```
 {
   "status" : 200,

@@ -5,14 +5,14 @@ Base URL : /api/pets
 ## Get All Pets
 Endpoint : GET /api/pets
 
-Deskripsi : Mengambil seluruh data pet. Hanya dapat diakses oleh ADMIN / SUPER ADMIN
+Deskripsi : Mengambil seluruh data pet. Dapat diakses oleh ADMIN, SUPER ADMIN dan DOCTOR
 
 - Headers : Bearer <access_token>
 
-Request Body:
+### Request Body:
 Tidak ada request body (karena menggunakan method Get)
 
-Responses Body (Success):
+### Responses Body (Success):
 ```
 {
   "status": 200,
@@ -45,7 +45,7 @@ Responses Body (Success):
   ]
 }
 ```
-Response Body (Fail)
+### Response Body (Fail)
 - Unauthorized Responses (401)
 ```
 {
@@ -67,14 +67,14 @@ Jika user tidak punya akses
 ## Get Pet by ID
 Endpoint : GET /api/pets/:id
 
-Deskripsi : Mengambil data pet berdasarkan ID. Hanya dapat diakses oleh ADMIN / SUPER ADMIN.
+Deskripsi : Mengambil data pet berdasarkan ID. Dapat diakses oleh ADMIN, SUPER ADMIN dan DOCTOR
 
 - Headers : Bearer <access_token>
 
-Request Body:
+### Request Body:
 Tidak ada request body (karena menggunakan method Get)
 
-Responses Body (Success):
+### Responses Body (Success):
 ```
 {
   "status": 200,
@@ -95,7 +95,7 @@ Responses Body (Success):
 }
 ```
 
-Responses Body (Fail):
+### Responses Body (Fail):
 - Unauthorized Response (401)
 Jika token tidak ada atau tidak valid:
 ```
@@ -115,18 +115,27 @@ Jika user tidak punya akses:
   "data": null
 }
 ```
+- Not Found (404)
+Jika data tidak ada
+```
+{
+  "status": 404,
+  "message": "Pet not found",
+  "data": null
+}
+```
 
 ## Get My Pets
 Endpoint :  GET /api/pets/me
 
-Deskripsi : Mengambil seluruh data pet. Hanya dapat diakses oleh Owner.
+Deskripsi : Mengambil seluruh data pet. Hanya dapat diakses oleh OWNER.
 
 Headers : Bearer <access_token>
 
-Request Body:
+### Request Body:
 Tidak ada request body (karena menggunakan method GET)
 
-Responses Body:
+### Responses Body (Success):
 ```
 {
     "status" : 200,
@@ -138,7 +147,7 @@ Responses Body:
             "petType": "Dog",
             "petRace": "Siberian Husky",
             "petGender": "MALE",
-            "age": 3,
+            "age": 3
         },
         {
             "id": 4,
@@ -146,13 +155,13 @@ Responses Body:
             "petType": "Cat",
             "petRace": "Domestic",
             "petGender": "MALE",
-            "age": 1,
+            "age": 1
         }
     ]
 }
 ```
 
-Responses Body (Fail):
+### Responses Body (Fail):
 - Unauthorized Response (401)
 Jika token tidak ada atau tidak valid:
 ```
@@ -179,25 +188,25 @@ Jika user tidak memiliki data pet sama sekali
 {
     "status": 404,
     "message" : "Not Found",
-    "data": null
+    "data": []
 }
 ```
 
 ## Get My Pets by Id
 Endpoint :  GET /api/pets/me/:id
 
-Deskripsi : Mengambil 1 data pet berdasarkan. Hanya dapat diakses oleh Owner.
+Deskripsi : Mengambil 1 data pet berdasarkan ID. Hanya dapat diakses oleh OWNER.
 
 Headers : Bearer <access_token>
 
-Request Body:
+### Request Body:
 Tidak ada request body (karena menggunakan method GET)
 
-Responses Body:
+### Responses Body (Success):
 ```
 {
     "status" : 200,
-    "message" : "Success"
+    "message" : "Success",
     "data" : 
     {
         "id": 4,
@@ -210,7 +219,7 @@ Responses Body:
 }
 ```
 
-Responses Body (Fail):
+### Responses Body (Fail):
 - Unauthorized Response (401)
 Jika token tidak ada atau tidak valid:
 ```
@@ -220,7 +229,6 @@ Jika token tidak ada atau tidak valid:
   "data": null
 }
 ```
-
 - Forbidden Responses (403)
 Jika user tidak punya akses:
 ```
@@ -230,7 +238,6 @@ Jika user tidak punya akses:
   "data": null
 }
 ```
-
 - Not Found (404)
 Jika user tidak memiliki data pet sama sekali
 ```
@@ -244,14 +251,14 @@ Jika user tidak memiliki data pet sama sekali
 ## Post Pet
 Endpoint : POST /api/pets
 
-Deskripsi:  Membuat pet baru. Endpoint ini digunakan oleh role ADMIN dan OWNER
+Deskripsi:  Membuat pet baru. Endpoint ini digunakan oleh role SUPER ADMIN, ADMIN dan OWNER
 
-ADMIN -> create pet untuk siapa saja
+SUPER ADMIN ADMIN -> create pet untuk siapa saja
 OWNER -> create pet untuk dirinya sendiri
 
 - Headers : Bearer <access_token>
 
-Request Body 
+### Request Body :
 ```
 {
     "petName": "Pororo",
@@ -262,6 +269,7 @@ Request Body
 }
 ```
 
+### Responses Body (Success) :
 Success Response (201)
 ```
 {
@@ -273,18 +281,18 @@ Success Response (201)
         "petType" : "Dog",
         "petRace" : "Siberian Husky",
         "petGender" : "MALE",
-        "age" : 1
+        "age" : 1,
         "ownerId" : 3
     }
 }
 ```
 
-Error Response
+### Responses Body (Fail):
 - Bad Request (400)
 ```
 {
     "status" : 400,
-    "message" : "Invalid input data"
+    "message" : "Invalid input data",
     "data" : null
 }
 ```
@@ -313,7 +321,7 @@ Deskripsi : Mengubah data Pet. Endpoint ini digunakan oleh ROLE ADMIN dan OWNER.
 
 Headers : Bearer <access_token>
 
-Request Body :
+### Request Body :
 ```
 {
     "petName": "Pororo",
@@ -324,7 +332,7 @@ Request Body :
 }
 ```
 
-Responses Body:
+### Responses Body (Success):
 Success Responses (200)
 ```
 {
@@ -340,7 +348,7 @@ Success Responses (200)
 }
 ```
 
-Error Response
+### Responses Body (Success):
 - Bad Request (400)
 ```
 {
@@ -374,7 +382,7 @@ Deskripsi : Menghapus data Pet. Endpoint ini digunakan oleh ROLE ADMIN dan OWNER
 
 Headers : Bearer <access_token>
 
-Response Body (Success) : 
+### Response Body (Success) : 
 ```
 {
   "status": 200,
@@ -383,7 +391,7 @@ Response Body (Success) :
 }
 ```
 
-Response Body (Fail)
+### Responses Body (Success):
 - Bad Request (400)
 ```
 {

@@ -5,14 +5,16 @@ Base URL : /api/users
 ## Get All User
 Endpoint : GET /api/users
 
-Deskripsi : Mengambil seluruh data user. Hanya dapat diakses oleh ADMIN / SUPER ADMIN
+Deskripsi : Mengambil seluruh list user sistem. Akses: ADMIN, SUPER ADMIN.
 
-- Headers : Bearer <access_token>
+- Headers 
+Authorization: Bearer <access_token>
+- Query Params: role(optional: ADMIN, DOCTOR, OWNER), page, limit
 
-Request Body:
+### Request Body:
 Tidak ada request body (karena menggunakan method Get)
 
-Responses Body (Success):
+### Responses Body (Success):
 ```
 {
     "status" : 200,
@@ -26,15 +28,15 @@ Responses Body (Success):
         },
         {
             "id" : 2,
-            "name" : "drh. Smith",
-            "email" : "smith@example.com",
+            "name" : "Jahn Doe",
+            "email" : "jahndoe@example.com",
             "role" : "DOCTOR"
         }
     ]
 }
 ```
 
-Response Body (Fail)
+### Response Body (Fail)
 - Unauthorized Responses (401)
 ```
 {
@@ -56,14 +58,15 @@ Jika user tidak punya akses
 ## Get User by ID
 Endpoint : GET /api/users/:id
 
-Deskripsi : Mengambil data user berdasarkan ID. Hanya dapat diakses oleh ADMIN / SUPER ADMIN.
+Deskripsi : Mengambil data user berdasarkan ID. Akses: ADMIN, SUPER ADMIN.
 
-- Headers : Bearer <access_token>
+- Headers 
+Authorization: Bearer <access_token>
 
-Request Body:
+### Request Body:
 Tidak ada request body (karena menggunakan method Get)
 
-Responses Body: 
+### Responses Body (Success): 
 ```
 {
     "status" : 200,
@@ -78,7 +81,7 @@ Responses Body:
 }
 ```
 
-Responses Body (Fail):
+### Responses Body (Fail):
 - Unauthorized Response (401)
 Jika token tidak ada atau tidak valid:
 ```
@@ -111,45 +114,43 @@ Jika user tidak punya akses:
 Endpoint : POST /api/users
 
 Deskripsi : 
-Membuat user baru.
+Membuat user baru untuk OWNER, DOCTOR, ADMIN. Dapat digunakan oleh ADMIN (hanya boleh ROLE DOCTOR & OWNER) dan SUPERADMIN
 
-- ADMIN → hanya bisa buat OWNER & DOCTOR (namun admin tidak bisa membuat admin lain)
-- SUPER ADMIN → bisa buat ADMIN, OWNER, DOCTOR
+- Headers 
+Authorization: Bearer <access_token>
 
-- Headers : Bearer <access_token>
-
-Request Body :
+### Request Body :
 ```
 {
-    "name" : "drh.claire",
-    "email" : "drhclaire@example.com",
+    "name" : "John Doe",
+    "email" : "johndoe@example.com",
     "password" : "supersecretpass",
     "phoneNumber" : "081212121212",
     "role" : "DOCTOR"
 }
 ```
 
-Success Response (201) 
+### Response Body (Success) :
 ```
 {
     "status" : 201,
     "message" : "User created successfully",
     "data" : {
         "id" : 3,
-        "name" : "drh.claire",
-        "email" : "drhclaire@example.com",
+        "name" : "John Doe",
+        "email" : "johndoe@example.com",
         "phoneNumber" : "081212121212",
         "role" : "DOCTOR"
     }
 }
 ```
 
-Error Response
+### Response Body (Fail) 
 - Bad Request (400)
 ```
 {
     "status" : 400,
-    "message" : "Invalid email format",
+    "message" : "Email already registered",
     "data" : null
 }
 ```
@@ -174,21 +175,21 @@ Jika token tidak ada atau tidak valid:
 ## Update User
 Endpoint : PATCH /api/users/:id
 
-Deskripsi : Digunakan untuk mengupdate akun user, dilakukan oleh ADMIN dan SUPERADMIN
+Deskripsi : Digunakan untuk mengupdate akun user, dilakukan oleh ADMIN / SUPERADMIN
 
-- Headers : Bearer <access_token>
+- Headers 
+Authorization: Bearer <access_token>
 
-Request Body :
+### Request Body :
 ```
 {
-    "name" : "drh.claire",
-    "email" : "drhclaireupdate@example.com",
-    "phoneNumber" : "081234567890",
-    "role" : "DOCTOR"
+    "name" : "John Doe",
+    "email" : "johndoe@example.com",
+    "phoneNumber" : "081212121212"
 }
 ```
 
-Response Body
+### Response Body (Success) 
 Success Response (200) 
 ```
 {
@@ -196,15 +197,15 @@ Success Response (200)
     "message" : "User updated Successfully",
     "data" : {
         "id" : 3,
-        "name" : "drh.claire",
-        "email" : "drhclaire@example.com",
-        "phoneNumber" : "081234567890",
-        "role" : "DOCTOR"
+        "name" : "John Doe",
+        "email" : "johndoe@example.com",
+        "phoneNumber" : "081212121212",
+        "role" : "OWNER"
     }
 }
 ```
 
-Error Response
+### Response Body (Fail) 
 - Bad Request (400)
 ```
 {
@@ -242,11 +243,12 @@ Jika token tidak ada atau tidak valid:
 ## Update Password User
 Endpoint : PATCH /api/users/:id/password
 
-Deskripsi : mengupdate password user, dilakukan oleh ADMIN dan SUPERADMIN
+Deskripsi : mengupdate password user, dilakukan oleh ADMIN / SUPERADMIN
 
-- Headers : Bearer <access_token>
+- Headers 
+Authorization: Bearer <access_token>
 
-Request Body 
+### Request Body :
 ```
 {
     "oldPassword": "oldpassword", 
@@ -254,7 +256,7 @@ Request Body
 }
 ```
 
-Response Body (Success):
+### Response Body (Success) :
 ```
 {
     "status": 200, 
@@ -268,11 +270,11 @@ Response Body (Success):
 Endpoint : DELETE /api/users/:id
 
 Deskripsi : 
-Menghapus user (soft delete) yang hanya bisa di lakukan oleh ROLE ADMIN dan SUPERADMIN
+Menghapus user (soft delete) yang hanya bisa di lakukan oleh ROLE ADMIN / SUPERADMIN
 
 - Headers : Bearer <access_token>
 
-Response Body (Success)
+### Response Body (Success)
 ```
 {
     "status": 200, 
@@ -281,7 +283,7 @@ Response Body (Success)
 }
 ```
 
-Response Body (Fail)
+### Response Body (Fail)
 - Unauthorized Response (401)
 Jika token tidak ada atau tidak valid:
 ```
@@ -295,14 +297,16 @@ Jika token tidak ada atau tidak valid:
 ## Get Current User
 Endpoint: GET /api/users/me
 
-Deskripsi: Mengambil data user yang sedang login
+Deskripsi: Mengambil data akun yang sedang login beserta detail profil spesifiknya (profil petOwner jika role OWNER, atau profil doctor jika role DOCTOR).
 
-- Headers : Bearer <access_token>
+- Headers 
+Authorization : Bearer <access_token>
 
-Request Body:
+### Request Body:
 Tidak ada request body (karena menggunakan method Get)
 
-Responses Body (Success):
+### Responses Body (Success):
+- Jika ROLE adalah OWNER (pet_owner)
 ```
 {
     "status" : 200,
@@ -311,13 +315,36 @@ Responses Body (Success):
         "id" : 1,
         "name" : "John Doe",
         "email" : "johndoe@example.com",
+        "phoneNumber" : "08123456789",
         "role" : "OWNER",
         "createdAt" : "2026-07-23"
     }
 }
 ```
+- Jika ROLE adalah DOCTOR
+```
+{
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "id": 2,
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "phoneNumber": "081299998888",
+    "role": "DOCTOR",
+    "profile": {
+      "doctorId": 1,
+      "sipNumber": "SIP-VET/2026/001",
+      "specialization": "Bedah Hewan",
+      "practiceDays": "Senin - Jumat",
+      "startTime": "08:00",
+      "endTime": "16:00"
+    }
+  }
+}
+```
 
-Responses Body (fail) :
+### Responses Body (fail) :
 - Unauthorized Response (401) Jika token tidak ada atau tidak valid:
 ```
 {
@@ -338,11 +365,12 @@ Responses Body (fail) :
 ## Update Current User
 ENDPOINT : PATCH /api/users/me
 
-Deskripsi: User dapat mengupdate dirinya sendiri
+Deskripsi : User mengupdate data akun dasar (nama, email, no handphone) miliknya sendiri.
 
-Header : Bearer <access_token>
+- Headers 
+Authorization : Bearer <access_token>
 
-Request Body:
+### Request Body:
 ```
 {
     "name": "John Doe",
@@ -351,7 +379,7 @@ Request Body:
 }
 ```
 
-Response Body (Success) :
+### Response Body (Success) :
 ```
 {
     "status": 200,
@@ -364,8 +392,7 @@ Response Body (Success) :
 }
 ```
 
-Response Body (Fail) :
-Error Response
+### Response Body (Fail) :
 - Bad Request (400)
 ```
 {
@@ -398,9 +425,10 @@ ENDPOINT : PATCH /api/users/me/password
 
 Deskripsi: User mengupdate password miliknya sendiri
 
-Header : Bearer <access_token>
+- Headers 
+Authorization : Bearer <access_token>
 
-Request Body 
+### Request Body :
 ```
 {
     "oldPassword": "oldpassword", 
@@ -408,7 +436,7 @@ Request Body
 }
 ```
 
-Response Body (Success):
+### Response Body (Success):
 ```
 {
     "status": 200, 
