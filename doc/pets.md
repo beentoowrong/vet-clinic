@@ -13,18 +13,20 @@ Deskripsi : Mengambil seluruh data pet. Dapat diakses oleh ADMIN, SUPER ADMIN da
 Tidak ada request body (karena menggunakan method Get)
 
 ### Responses Body (Success):
-```
+``` 
 {
   "status": 200,
   "message": "Success",
   "data": [
     {
       "id": 1,
-      "petName": "Pororo",
-      "petType": "Dog",
-      "petRace": "Siberian Husky",
-      "petGender": "MALE",
+      "name": "Pororo",
+      "species": "Dog",
+      "breed": "Siberian Husky",
+      "gender": "MALE",
       "age": 3,
+      "specialMarks": "White color and blue eyes",
+      "is_sterilized": true,
       "owner": {
         "id": 1,
         "name": "John Doe"
@@ -32,11 +34,13 @@ Tidak ada request body (karena menggunakan method Get)
     },
     {
       "id": 2,
-      "petName": "Luna",
-      "petType": "Cat",
-      "petRace": "Domestic",
-      "petGender": "FEMALE",
+      "name": "Luna",
+      "species": "Cat",
+      "breed": "Domestic",
+      "gender": "FEMALE",
       "age": 1,
+      "specialMarks": "Calico fur",
+      "is_sterilized": false,
       "owner": {
         "id": 4,
         "name": "Jane Doe"
@@ -82,11 +86,13 @@ Tidak ada request body (karena menggunakan method Get)
   "data": 
     {
       "id": 1,
-      "petName": "Pororo",
-      "petType": "Dog",
-      "petRace": "Siberian Husky",
-      "petGender": "MALE",
+      "name": "Pororo",
+      "species": "Dog",
+      "breed": "Siberian Husky",
+      "gender": "MALE",
       "age": 3,
+      "specialMarks": "White color and blue eyes",
+      "is_sterilized": true,
       "owner": {
         "id": 1,
         "name": "John Doe"
@@ -142,20 +148,24 @@ Tidak ada request body (karena menggunakan method GET)
     "message" : "Success",
     "data" : [
         {
-            "id": 1,
-            "petName": "Pororo",
-            "petType": "Dog",
-            "petRace": "Siberian Husky",
-            "petGender": "MALE",
-            "age": 3
+          "id": 1,
+          "name": "Pororo",
+          "species": "Dog",
+          "breed": "Siberian Husky",
+          "gender": "MALE",
+          "age": 3,
+          "specialMarks": "White color and blue eyes",
+          "is_sterilized": true
         },
         {
             "id": 4,
-            "petName": "Miki",
-            "petType": "Cat",
-            "petRace": "Domestic",
-            "petGender": "MALE",
-            "age": 1
+            "name": "Miki",
+            "species": "Cat",
+            "breed": "Domestic",
+            "gender": "MALE",
+            "age": 1,
+            "specialMarks": "Full black fur",
+            "is_sterilized": true
         }
     ]
 }
@@ -209,12 +219,14 @@ Tidak ada request body (karena menggunakan method GET)
     "message" : "Success",
     "data" : 
     {
-        "id": 4,
-        "petName": "Miki",
-        "petType": "Cat",
-        "petRace": "Domestic",
-        "petGender": "MALE",
-        "age": 1
+      "id": 4,
+      "name": "Miki",
+      "species": "Cat",
+      "breed": "Domestic",
+      "gender": "MALE",
+      "age": 1,
+      "specialMarks": "Full black fur",
+      "is_sterilized": true
     }
 }
 ```
@@ -253,7 +265,7 @@ Endpoint : POST /api/pets
 
 Deskripsi:  Membuat pet baru. Endpoint ini digunakan oleh role SUPER ADMIN, ADMIN dan OWNER
 
-SUPER ADMIN ADMIN -> create pet untuk siapa saja
+SUPER ADMIN, ADMIN -> create pet untuk siapa saja
 OWNER -> create pet untuk dirinya sendiri
 
 - Headers : Bearer <access_token>
@@ -262,11 +274,13 @@ OWNER -> create pet untuk dirinya sendiri
 ```
 {
   "ownerId": 3,
-  "petName": "Pororo",
-  "petType": "Dog",
-  "petRace": "Siberian Husky",
-  "petGender": "MALE",
-  "age" : 1
+  "name": "Miki",
+  "species": "Cat",
+  "breed": "Domestic",
+  "gender": "MALE",
+  "age": 1,
+  "specialMarks": "Full black fur",
+  "is_sterilized": true
 }
 ```
 
@@ -277,13 +291,14 @@ Success Response (201)
     "status" : 201,
     "message": "Pet created successfully",
     "data" : {
-      "ownerId" : 3
-      "id" : 6,
-      "petName" : "Pororo",
-      "petType" : "Dog",
-      "petRace" : "Siberian Husky",
-      "petGender" : "MALE",
-      "age" : 1,
+      "ownerId": 3,
+      "name": "Miki",
+      "species": "Cat",
+      "breed": "Domestic",
+      "gender": "MALE",
+      "age": 1,
+      "specialMarks": "Full black fur",
+      "is_sterilized": true
     }
 }
 ```
@@ -326,11 +341,13 @@ Headers : Bearer <access_token>
 ```
 {
     "ownerId": 3,
-    "petName": "Pororo",
-    "petType": "Dog",
-    "petRace": "Siberian Husky",
-    "petGender": "MALE",
-    "age" : 1
+    "name": "Miki",
+    "species": "Cat",
+    "breed": "Domestic",
+    "gender": "MALE",
+    "age": 1,
+    "specialMarks": "Full black fur",
+    "is_sterilized": true
 }
 ```
 
@@ -342,11 +359,13 @@ Success Responses (200)
     "message" : "Pet updated succesfully",
     "data" : {
       "ownerId": 3,
-      "petName": "Pororo",
-      "petType": "Dog",
-      "petRace": "Siberian Husky",
-      "petGender": "MALE",
-      "age" : 1
+      "name": "Pororo",
+      "species": "Dog",
+      "breed": "Siberian Husky",
+      "gender": "MALE",
+      "age" : 1,
+      "specialMarks": "Full black fur",
+      "is_sterilized": true
     }
 }
 ```
