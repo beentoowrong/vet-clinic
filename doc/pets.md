@@ -25,9 +25,9 @@ Tidak ada request body (karena menggunakan method Get)
       "breed": "Siberian Husky",
       "gender": "MALE",
       "age": 3,
-      "weight": 4,
-      "special_marks": "White color and blue eyes",
-      "is_sterilized": true,
+      "weightKg": 4,
+      "specialMarks": "White color and blue eyes",
+      "isSterilized": true,
       "owner": {
         "id": 1,
         "name": "John Doe"
@@ -40,9 +40,9 @@ Tidak ada request body (karena menggunakan method Get)
       "breed": "Domestic",
       "gender": "FEMALE",
       "age": 1,
-      "weight": 4,
-      "special_marks": "Calico fur",
-      "is_sterilized": false,
+      "weightKg": 4,
+      "specialMarks": "Calico fur",
+      "isSterilized": false,
       "owner": {
         "id": 4,
         "name": "Jane Doe"
@@ -93,9 +93,9 @@ Tidak ada request body (karena menggunakan method Get)
       "breed": "Siberian Husky",
       "gender": "MALE",
       "age": 3,
-      "weight": 4,
-      "special_marks": "White color and blue eyes",
-      "is_sterilized": true,
+      "weightKg": 4,
+      "specialMarks": "White color and blue eyes",
+      "isSterilized": true,
       "owner": {
         "id": 1,
         "name": "John Doe"
@@ -157,9 +157,9 @@ Tidak ada request body (karena menggunakan method GET)
           "breed": "Siberian Husky",
           "gender": "MALE",
           "age": 3,
-          "weight": 4,
-          "special_marks": "White color and blue eyes",
-          "is_sterilized": true,
+          "weightKg": 4,
+          "specialMarks": "White color and blue eyes",
+          "isSterilized": true,
         },
         {
             "id": 4,
@@ -168,9 +168,9 @@ Tidak ada request body (karena menggunakan method GET)
             "breed": "Domestic",
             "gender": "MALE",
             "age": 1,
-            "weight" : 2,
-            "special_marks": "Full black fur",
-            "is_sterilized": true
+            "weightKg" : 2,
+            "specialMarks": "Full black fur",
+            "isSterilized": true
         }
     ]
 }
@@ -230,9 +230,9 @@ Tidak ada request body (karena menggunakan method GET)
       "breed": "Domestic",
       "gender": "MALE",
       "age": 1,
-      "weight" : 2,
-      "special_marks": "Full black fur",
-      "is_sterilized": true
+      "weightKg" : 2,
+      "specialMarks": "Full black fur",
+      "isSterilized": true
     }
 }
 ```
@@ -285,9 +285,9 @@ OWNER -> create pet untuk dirinya sendiri
   "breed": "Domestic",
   "gender": "MALE",
   "age": 1,
-  "weight" : 4
-  "special_marks": "Full black fur",
-  "is_sterilized": true
+  "weightKg" : 4
+  "specialMarks": "Full black fur",
+  "isSterilized": true
 }
 ```
 
@@ -304,9 +304,9 @@ Success Response (201)
       "breed": "Domestic",
       "gender": "MALE",
       "age": 1,
-      "weight" : 4
-      "special_marks": "Full black fur",
-      "is_sterilized": true
+      "weightKg" : 4
+      "specialMarks": "Full black fur",
+      "isSterilized": true
     }
 }
 ```
@@ -354,9 +354,9 @@ Headers : Bearer <access_token>
     "breed": "Domestic",
     "gender": "MALE",
     "age": 1,
-    "weight" : 4
-    "special_marks": "Full black fur",
-    "is_sterilized": true
+    "weightKg" : 4
+    "specialMarks": "Full black fur",
+    "isSterilized": true
 }
 ```
 
@@ -373,9 +373,9 @@ Success Responses (200)
       "breed": "Siberian Husky",
       "gender": "MALE",
       "age" : 1,
-      "weight" : 4
-      "special_marks": "Full black fur",
-      "is_sterilized": true
+      "weightKg" : 4
+      "specialMarks": "Full black fur",
+      "isSterilized": true
     }
 }
 ```

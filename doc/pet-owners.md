@@ -89,8 +89,8 @@ Tidak ada request body (karena menggunakan method Get)
           "gender": "MALE",
           "age": 3,
           "weight": 4,
-          "special_marks": "White color and blue eyes",
-          "is_sterilized": true,
+          "specialMarks": "White color and blue eyes",
+          "isSterilized": true,
         }, 
         {
           "id": 10,
@@ -100,8 +100,8 @@ Tidak ada request body (karena menggunakan method Get)
           "gender": "MALE",
           "age": 3,
           "weight": 4,
-          "special_marks": "long Ear and brown fur",
-          "is_sterilized": true,
+          "specialMarks": "long Ear and brown fur",
+          "isSterilized": true,
         }
       ]
     }
