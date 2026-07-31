@@ -20,6 +20,11 @@ enum Role {
   OWNER
 }
 
+enum Gender {
+  MALE 
+  FEMALE
+}
+
 model User {
   id Int @id @default(autoincrement())
   name String
@@ -27,8 +32,67 @@ model User {
   password String 
   phoneNumber String? @map("phone_number")
   role Role @default(OWNER)
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relasi 1-to-1 Opsional ke profil spesifik
+  petOwnerProfile PetOwner?
+  doctorProfile Doctor?
+
+  @@map("users")
+}
+
+model PetOwner {
+  id Int @id @default(autoincrement())
+  userId Int @unique @map("user_id")
+  address String? @db.Text
+  emergencyContact String? @map("emergency_contact")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-    
-  @@map("users")
+
+  // Relasi balik ke User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // relasi 1-to-N: Satu Owner punya banyak Pets
+  pets Pet[]
+
+  @@map("pet_owners")
+}
+
+model Doctor {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique @map("user_id")
+  sipNumber      String   @unique @map("sip_number")
+  specialization String
+  practiceDays   String   @map("practice_days") // misal: "Senin - Jumat"
+  startTime      String   @map("start_time")    // misal: "08:00"
+  endTime        String   @map("end_time")      // misal: "16:00"
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relasi balik ke User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("doctors")
+}
+
+model Pet {
+  id           Int      @id @default(autoincrement())
+  ownerId      Int      @map("owner_id")
+  name         String
+  species      String   // misal: "Dog", "Cat"
+  breed        String?  // misal: "Siberian Husky"
+  gender       Gender
+  age          Int      // Dalam tahun/bulan
+  weightKg     Float?   @map("weight_kg")
+  specialMarks String?  @map("special_marks") @db.Text
+  isSterilized Boolean  @default(false) @map("is_sterilized")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relasi balik ke PetOwner
+  owner PetOwner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("pets")
 }
