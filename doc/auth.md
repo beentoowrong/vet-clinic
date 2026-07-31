@@ -28,12 +28,11 @@ Success (201 - Created)
     "id": 1,
     "name": "John Doe",
     "email": "johndoe@example.com",
-    "password": "secretPassword123",
-    "phoneNumber": "08123456789"
-    "address": "Jl. Kebayoran Lama"
-    "role": "OWNER"
+    "phoneNumber": "08123456789",
+    "address": "Jl. Kebayoran Lama",
+    "role": "OWNER",
+    "token": "jwt_token_here"
   }
-  "token": "jwt_token_here"
 }
 ```
 
@@ -99,6 +98,6 @@ Authorization: Bearer <access_token>
 ```
 {
   "status" : 200,
-  "message" : "Logout Berhasil",
+  "message" : "Logout Berhasil"
 }
 ```
