@@ -82,20 +82,26 @@ Tidak ada request body (karena menggunakan method Get)
       "emergencyContact": "081987654321",
       "pets" : [
         {
-            "id": 1,
-            "petName": "Pororo",
-            "petType": "Dog",
-            "petRace": "Siberian Husky",
-            "petGender": "MALE",
-            "age": 3,
+          "id": 1,
+          "name": "Pororo",
+          "species": "Dog",
+          "breed": "Siberian Husky",
+          "gender": "MALE",
+          "age": 3,
+          "weight": 4,
+          "special_marks": "White color and blue eyes",
+          "is_sterilized": true,
         }, 
         {
-            "id": 10,
-            "petName": "Moroll",
-            "petType": "Cat",
-            "petRace": "Caracal",
-            "petGender": "MALE",
-            "age": 3,
+          "id": 10,
+          "name": "Moroll",
+          "species": "Cat",
+          "breed": "Caracal",
+          "gender": "MALE",
+          "age": 3,
+          "weight": 4,
+          "special_marks": "long Ear and brown fur",
+          "is_sterilized": true,
         }
       ]
     }

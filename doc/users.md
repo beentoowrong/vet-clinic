@@ -130,7 +130,16 @@ Authorization: Bearer <access_token>
     "role" : "DOCTOR"
 }
 ```
-- Untuk ROLE P
+- Untuk ROLE OWNER
+```
+{
+    "name" : "John Doe",
+    "email" : "johndoe@example.com",
+    "password" : "supersecretpass",
+    "phoneNumber" : "081212121212",
+    "role" : "OWNER"
+}
+```
 
 ### Response Body (Success) :
 ```
