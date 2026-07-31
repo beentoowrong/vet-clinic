@@ -86,10 +86,10 @@ Tidak ada request body karena menggunakan method GET
         },
         "pet": {
             "id": 12,
-            "petName": "Mimi",
-            "petType": "Cat",
-            "petRace": "Persian",
-            "petGender": "FEMALE",
+            "name": "Mimi",
+            "species": "Cat",
+            "breed": "Persian",
+            "gender": "FEMALE",
             "age": 2
         },
         "owner": {
@@ -170,10 +170,10 @@ Tidak ada request body karena menggunakan methods GET
         },
         "pet": {
             "id": 12,
-            "petName": "Mimi",
-            "petType": "Cat",
-            "petRace": "Persian",
-            "petGender": "FEMALE",
+            "name": "Mimi",
+            "species": "Cat",
+            "breed": "Persian",
+            "gender": "FEMALE",
             "age": 2
         },
         "owner": {
