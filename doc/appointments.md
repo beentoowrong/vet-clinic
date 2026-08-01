@@ -5,11 +5,17 @@ Base URL : /api/appointments
 ## Get All Appointment
 Endpoint: GET /api/appointments
 
-Deskripsi: Mengambil seluruh daftar janji temu. Hanya dapat diakses oleh ADMIN, SUPER ADMIN dan DOCTOR. Mendukung filter berdasarkan tanggal dan status.
+Deskripsi: Mengambil daftar seluruh janji temu.
+
+Akses: ADMIN, SUPER ADMIN, DOCTOR
 
 - Headers 
 Authorization: Bearer <access_token>
-- Query Params: role(optional: ADMIN, DOCTOR, OWNER), page, limit
+- Query Params: 
+1. status (optional: WAITING_FOR_PAYMENT, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED)
+2. date (optional: YYYY-MM-DD)
+3. page (optional, default 1)
+4. limit (optional, default 10)
 
 ### Request Body:
 Tidak ada request body karena menggunakan method GET.
@@ -17,33 +23,39 @@ Tidak ada request body karena menggunakan method GET.
 ### Responses Body (Success):
 ```
 {
-    "status": 200,
-    "message": "Success",
-    "data" : 
-    [
-        {
-            "id" : 101,
-            "appointment_code": "APT-20260805-001",
-            "appointment_date": "2026-08-05",
-            "appointment_time": "10:00",
-            "service_type" : "CHECKUP",
-            "status" : "CONFIRMED",
-            "pet": {
-                "id": 12,
-                "name" : "Momo",
-                "species" : "Cat"
-            },
-            "owner" : {
-                "id": 4,
-                "name": "Budi Santoso",
-                "phone_number" : "08231234567"
-            },
-            "doctor" : {
-                "id": 3,
-                "name" "drh. Rita Asmawari"
-            }
-        }
-    ]
+  "status": 200,
+  "message": "Success",
+  "data": [
+    {
+      "id": 101,
+      "appointmentCode": "APT-20260805-001",
+      "appointmentDate": "2026-08-05",
+      "appointmentTime": "10:00",
+      "serviceType": "IN_CLINIC",
+      "status": "CONFIRMED",
+      "pet": {
+        "id": 12,
+        "name": "Momo",
+        "species": "Cat"
+      },
+      "owner": {
+        "id": 4,
+        "name": "Budi Santoso",
+        "phoneNumber": "08231234567"
+      },
+      "doctor": {
+        "id": 3,
+        "name": "drh. Rita Asmawari"
+      },
+      "invoice": null
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "totalData": 1,
+    "totalPages": 1
+  }
 }
 ```
 ### Responses Body (Fail):
@@ -68,7 +80,9 @@ Jika user tidak punya akses
 ## Get Appointment by ID
 Endpoint: GET /api/appointments/:id
 
-Deskripsi: Mengambil detail lengkap 1 janji temu berdasarkan ID. Akses: ADMIN, SUPER ADMIN, dan OWNER yang bersangkutan.
+Deskripsi: Mengambil detail lengkap 1 janji temu berdasarkan ID (termasuk status Invoice terkait).
+
+Akses: ADMIN, SUPER ADMIN, DOCTOR, dan OWNER (yang memiliki hewan tersebut)
 
 - Headers 
 Authorization: Bearer <access_token>
@@ -79,34 +93,43 @@ Tidak ada request body karena menggunakan method GET
 ### Responses Body (Success):
 ```
 {
-    "status": 200,
-    "message": "Success",
-    "data" : {
-        "id": 101,
-        "appointmentCode": "APT-20260805-001",
-        "appointmentDate": "2026-08-05",
-        "appointmentTime": "10:00",
-        "complaint": "Muntah-muntah sejak kemarin dan tidak mau makan",
-        "serviceType": "CHECKUP",
-        "status": "CONFIRMED",
-        "pet": {
-            "id": 12,
-            "petName": "Mimi",
-            "petType": "Cat",
-            "petRace": "Persian",
-            "age": 2
-        },
-        "owner": {
-            "id": 4,
-            "name": "Budi Santoso",
-            "phoneNumber": "081234567890"
-        },
-        "doctor": {
-            "id": 2,
-            "name": "drh. Sarah Wijaya",
-            "specialization": "Bedah & Hewan Kecil"
-        }
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "id": 101,
+    "appointmentCode": "APT-20260805-001",
+    "appointmentDate": "2026-08-05",
+    "appointmentTime": "10:00",
+    "serviceType": "HOME_VISIT",
+    "status": "WAITING_FOR_PAYMENT",
+    "complaint": "Kucing lemas dan tidak mau makan",
+    "homeVisitAddress": "Jl. Mawar No. 12, Jakarta Selatan",
+    "cancelReason": null,
+    "pet": {
+      "id": 12,
+      "name": "Mimi",
+      "species": "Cat",
+      "breed": "Persian",
+      "age": 2
+    },
+    "owner": {
+      "id": 4,
+      "name": "Budi Santoso",
+      "phoneNumber": "081234567890"
+    },
+    "doctor": {
+      "id": 2,
+      "name": "drh. Sarah Wijaya",
+      "specialization": "Bedah & Hewan Kecil"
+    },
+    "invoice": {
+      "id": 1,
+      "invoiceNumber": "INV-20260805-001",
+      "totalAmount": 150000,
+      "status": "UNPAID",
+      "paymentDueDate": "2026-08-05T13:00:00Z"
     }
+  }
 }
 ```
 ### Responses Body (Fail):
@@ -139,7 +162,11 @@ Jika user tidak punya akses
 ## Post Appointment 
 Endpoint : POST /api/appointments
 
-Deskripsi : Membuat janji temu pemeriksaan. Dapat dilakukan oleh OWNER (untuk hewan miliknya) atau oleh ADMIN / SUPER ADMIN (untuk pendaftaran pasien via telepon/walk-in).
+Deskripsi :Membuat pendaftaran janji temu baru.
+- Jika serviceType = HOME_VISIT: Otomatis membuatkan Invoice DP Transportasi dan status menjadi WAITING_FOR_PAYMENT
+- Jika serviceType = IN_CLINIC: Langsung CONFIRMED dan invoice bernilai null (diisi di kasir nanti).
+
+Akses: OWNER, ADMIN, SUPER ADMIN.
 
 - Headers 
 Authorization: Bearer <access_token>
@@ -147,15 +174,13 @@ Authorization: Bearer <access_token>
 ### Request Body:
 ```
 {
-    "petId": 12,
-    "doctorId": 2,
-    "appointmentDate": "2026-08-05",
-    "appointmentTime": "14:00",
-    "serviceType": "HOME_VISIT", // Pilihan: IN_CLINIC, HOME_VISIT, TELECONSULTATION
-    "complaint": "Anjing lemas tidak mau bangun, butuh dokter ke rumah",
-    
-    // Khusus jika serviceType == "HOME_VISIT"
-    "homeVisitAddress": "Jl. Mawar No. 12, Jakarta Selatan"
+  "petId": 12,
+  "doctorId": 2,
+  "appointmentDate": "2026-08-05",
+  "appointmentTime": "14:00",
+  "serviceType": "HOME_VISIT", // Pilihan: IN_CLINIC, HOME_VISIT, TELECONSULTATION
+  "complaint": "Anjing lemas tidak mau bangun, butuh dokter ke rumah",
+  "homeVisitAddress": "Jl. Mawar No. 12, Jakarta Selatan" // Wajib diisi jika HOME_VISIT
 }
 ```
 
@@ -163,34 +188,36 @@ Authorization: Bearer <access_token>
 - Jika Responses Body serviceType : "HOME_VISIT"
 ```
 {
-    "status": 201,
-    "message": "Home visit appointment created. Please proceed to payment for travel fee.",
-    "data": {
-        "id": 102,
-        "appointmentCode": "HV-20260805-002",
-        "serviceType": "HOME_VISIT",
-        "status": "WAITING_FOR_PAYMENT", // Otomatis WAITING_FOR_PAYMENT untuk Home Visit
-        "invoice": {
-            "invoiceNumber": "INV-20260805-002",
-            "totalAmount": 150000, // Biaya transport & visit awal
-            "paymentDueDate": "2026-08-05T13:00:00Z"
-        }
+  "status": 201,
+  "message": "Home visit appointment created. Please proceed to payment.",
+  "data": {
+    "id": 102,
+    "appointmentCode": "HV-20260805-002",
+    "serviceType": "HOME_VISIT",
+    "status": "WAITING_FOR_PAYMENT",
+    "invoice": {
+      "id": 2,
+      "invoiceNumber": "INV-20260805-002",
+      "totalAmount": 150000,
+      "status": "UNPAID",
+      "paymentDueDate": "2026-08-05T13:00:00Z"
     }
+  }
 }
 ```
 
 - Jika Responses Body serviceType : "IN_CLINIC"
 ```
 {
-    "status": 201,
-    "message": "Appointment created successfully.",
-    "data": {
-        "id": 103,
-        "appointmentCode": "APT-20260805-003",
-        "serviceType": "IN_CLINIC",
-        "status": "CONFIRMED", // Otomatis CONFIRMED tanpa perlu bayar dulu
-        "invoice": null // Invoice belum dibuat, nanti setelah periksa
-    }
+  "status": 201,
+  "message": "Appointment created successfully.",
+  "data": {
+    "id": 103,
+    "appointmentCode": "APT-20260805-003",
+    "serviceType": "IN_CLINIC",
+    "status": "CONFIRMED",
+    "invoice": null
+  }
 }
 ```
 
@@ -215,7 +242,9 @@ Authorization: Bearer <access_token>
 ## Update Appointment (Ubah Status Periksa)
 Endpoint : PATCH /api/appointments/:id/status
 
-Deskripsi : Mengubah status janji temu (misal: Admin mengonfirmasi pesanan, atau Dokter memulai pemeriksaan). Akses: ADMIN, SUPER ADMIN, DOCTOR.
+Deskripsi : Mengubah status jalannya pemeriksaan (misal: Pasien datang & dokter mulai memeriksa).
+
+Akses: ADMIN, SUPER ADMIN, DOCTOR
 
 - Headers 
 Authorization: Bearer <access_token>
@@ -223,7 +252,7 @@ Authorization: Bearer <access_token>
 ### Request Body:
 ```
 {
-    "status": "IN_PROGRESS" // Pilihan: CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED
+  "status": "IN_PROGRESS" // Pilihan: CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED
 }
 ```
 
@@ -234,6 +263,7 @@ Authorization: Bearer <access_token>
     "message": "Appointment status updated to IN_PROGRESS",
     "data": {
         "id": 101,
+        "appointmentCode": "APT-20260805-001",
         "status": "IN_PROGRESS"
     }
 }
@@ -269,7 +299,9 @@ Jika token tidak ada atau tidak valid:
 ## Cancel Appointment (Batalkan Janji Temu)
 Endpoint : PATCH /api/appointments/:id/cancel
 
-Deskripsi : Membatalkan janji temu. Dapat dilakukan oleh OWNER (sebelum status berubah jadi IN_PROGRESS) atau oleh ADMIN.
+Deskripsi: Membatalkan janji temu. Jika ada Invoice berstatus UNPAID, invoice akan otomatis berubah jadi CANCELLED.
+
+Akses: OWNER (sebelum status IN_PROGRESS), ADMIN, SUPER_ADMIN
 
 - Headers 
 Authorization: Bearer <access_token>
@@ -296,9 +328,9 @@ Authorization: Bearer <access_token>
  Bad Request (400)
 ```
 {
-    "status" : 400,
-    "message" : "Invalid input data",
-    "data" : null
+    "status": 400,
+    "message": "Doctor is not available at the selected date and time",
+    "data": null
 }
 ```
 - Unauthorized Response (401)

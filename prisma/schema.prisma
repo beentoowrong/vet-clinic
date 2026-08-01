@@ -25,6 +25,27 @@ enum Gender {
   FEMALE
 }
 
+enum ServiceType {
+  IN_CLINIC
+  HOME_VISIT
+  TELECONSULTATION
+}
+
+enum AppointmentStatus {
+  WAITING_FOR_PAYMENT
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  EXPIRED
+  CANCELLED
+}
+
 model User {
   id Int @id @default(autoincrement())
   name String
@@ -56,6 +77,7 @@ model PetOwner {
 
   // relasi 1-to-N: Satu Owner punya banyak Pets
   pets Pet[]
+  appointments Appointment[]
 
   @@map("pet_owners")
 }
@@ -73,6 +95,7 @@ model Doctor {
 
   // Relasi balik ke User
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
 
   @@map("doctors")
 }
@@ -93,6 +116,30 @@ model Pet {
 
   // Relasi balik ke PetOwner
   owner PetOwner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  appointments   Appointment[]
 
   @@map("pets")
+}
+
+model Appointment {
+  id Int @id @default(autoincrement())
+  appointmentCode String @unique @map("appointment_code")
+  petId Int @map("pet_id")
+  ownerId Int @map("owner_id")
+  doctorId Int @map("doctor_id")
+  appointmentDate DateTime @map("appointment_date") @db.Date
+  appointmentTime String @map("appointment_time") // format "14:00"
+  serviceType ServiceType @default(IN_CLINIC) @map("service_type")
+  status AppointmentStatus @default(CONFIRMED) @map("appointment_status")
+  complaint String? @db.Text
+  homeVisitAddress String? @map("home_visit_address") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // relasi 
+  pet           Pet            @relation(fields: [petId], references: [id], onDelete: Cascade)
+  owner         PetOwner       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  doctor        Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@map("appointments")
 }
