@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true })],
-  providers: [PrismaService]
+  providers: [PrismaService],
+  exports: [PrismaService]
 })
 export class CommonModule {}
