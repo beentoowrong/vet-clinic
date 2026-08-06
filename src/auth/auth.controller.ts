@@ -50,5 +50,3 @@ export class AuthController {
     }
 }
 
-
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoiZHJhZ29zQGV4YW1wbGUuY29tIiwicm9sZSI6Ik9XTkVSIiwiaWF0IjoxNzg2MDA5ODY5LCJleHAiOjE3ODYwOTYyNjl9.dKLNHt8aPSjwufv_877cclK9xW4aj76TTzGTCordlxY"
