@@ -10,7 +10,7 @@ import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -26,6 +26,6 @@ import { UsersService } from 'src/users/users.service';
   ],
   providers: [AuthService, JwtStrategy, PrismaService, UsersService],
   controllers: [AuthController],
-  exports: [JwtStrategy, PassportModule]
+  exports: [JwtStrategy, PassportModule, AuthService]
 })
 export class AuthModule {}

@@ -52,7 +52,7 @@ export class AuthController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('token')
+    @ApiBearerAuth('JWT-auth')
     @Delete('logout')
     @ApiOperation({
         summary: 'Logout pengguna',
@@ -64,7 +64,7 @@ export class AuthController {
         description: 'Logout successful',
         type: LogoutResponseDto  
     })
-    async logout(@Request() req): Promise<LogoutResponseDto> {
+    async logout( @Request() req): Promise<LogoutResponseDto> {
         return this.authService.logout(req.user)
     }
 }

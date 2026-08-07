@@ -9,7 +9,15 @@ async function bootstrap() {
   .setTitle('vet-clinic')
   .setDescription('The Vet Clinic API Description')
   .setVersion('0.1')
-  .addBearerAuth()
+  .addBearerAuth({
+    type: 'http',
+    scheme: 'bearer',
+    bearerFormat: 'JWT',
+    name: 'JWT',
+    description: 'Token JWT saja tanpa Bearer',
+    in: 'header',
+  }, 
+  'JWT-auth')
   .build();
 
   const document = SwaggerModule.createDocument(app, config)
