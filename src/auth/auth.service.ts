@@ -2,10 +2,12 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { RegisterUserDto } from './dto/register.dto'
 import { LoginUserDto } from './dto/login.dto'
 import { LogoutResponseDto } from './dto/logout-response.dto';
+import { LoginResponseDto } from './dto/login-response.dto'
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'
+import { User } from 'generated/prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -69,7 +71,7 @@ export class AuthService {
         };
     }
 
-    async login(loginUserDto : LoginUserDto) {
+    async login(loginUserDto : LoginUserDto): Promise<LoginResponseDto> {
         // 1. Cari dulu emailnya ada di register user apa enggak?
         const user = await this.usersService.findOne(loginUserDto.email)
         if (!user) {
@@ -83,6 +85,15 @@ export class AuthService {
         // 3. Generate JWT Token
         const payload = { sub: user.id, email: user.email, role: user.role }
         const token = await this.jwtService.signAsync(payload)
+
+        await this.prismaService.user.update({
+            where: {
+                id: user.id
+            },
+            data : {
+                token: token
+            }
+        })
 
         // 4. Return persis sesuai Api Spec
         return {
@@ -99,7 +110,18 @@ export class AuthService {
         }
     }
 
-    async logout(logoutResponseDto : LogoutResponseDto ) {
-        
+    async logout(user : User): Promise<LogoutResponseDto> {
+        await this.prismaService.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                token: null,
+            }
+        })
+        return {
+            status: 200,
+            message: "Logout Berhasil",
+        }
     }
 }

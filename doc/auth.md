@@ -98,6 +98,7 @@ Authorization: Bearer <access_token>
 ```
 {
   "status" : 200,
-  "message" : "Logout Berhasil"
+  "message" : "Logout Berhasil",
+  "data": null
 }
 ```

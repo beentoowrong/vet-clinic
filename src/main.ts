@@ -9,6 +9,7 @@ async function bootstrap() {
   .setTitle('vet-clinic')
   .setDescription('The Vet Clinic API Description')
   .setVersion('0.1')
+  .addBearerAuth()
   .build();
 
   const document = SwaggerModule.createDocument(app, config)

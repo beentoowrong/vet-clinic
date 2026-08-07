@@ -1,12 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Post, UseGuards, Request } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register.dto';
 import { LoginResponseDto } from './dto/login-response.dto'
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login.dto';
+import { JwtAuthGuard } from './guards/jwt.auth.guard';
+import { LogoutResponseDto } from './dto/logout-response.dto';
 
 @ApiTags('Auth')
-@Controller('auth')
+@Controller('/auth')
 export class AuthController {
     constructor( private readonly authService : AuthService ) {}
 
@@ -47,6 +49,23 @@ export class AuthController {
     })
     async login (@Body() loginUserDto : LoginUserDto) {
         return await this.authService.login(loginUserDto)
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth('token')
+    @Delete('logout')
+    @ApiOperation({
+        summary: 'Logout pengguna',
+        description:
+        'Logout pengguna dan invalidate token. Memerlukan Bearer token di header Authorization.',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Logout successful',
+        type: LogoutResponseDto  
+    })
+    async logout(@Request() req): Promise<LogoutResponseDto> {
+        return this.authService.logout(req.user)
     }
 }
 
