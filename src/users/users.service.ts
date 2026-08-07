@@ -16,4 +16,29 @@ export class UsersService {
         })
     }
 
+    // find user by id
+    async findById(id: number): Promise<User | null> {
+        return this.prismaService.user.findUnique({
+            where : { id }
+        })
+    }
+
+    // find all 
+    async findAll() {
+        const users = await this.prismaService.user.findMany({
+            select: {
+                id : true,
+                email: true,
+                name: true,
+                role: true,
+            },
+        });
+
+        return {
+            status: 200,
+            message: 'Daftar semua users berhasil diambil',
+            data : users
+        }
+    }
+
 }

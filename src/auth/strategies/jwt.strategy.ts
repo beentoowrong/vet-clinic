@@ -39,11 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             }
         })
 
-        console.log('2. User dari DB', user)
-        console.log('3. Token di DB', user?.token)
-
         if(!user || !user.token) {
-            console.log('4. Gagal di validasi token null/user tidak ada');
             throw new UnauthorizedException('Sesi telah berakhir, silahkan login kembali')
         }
 
