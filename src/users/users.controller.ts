@@ -1,4 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiTags('Users')
+@ApiBearerAuth('JWT-auth')
 @Controller('users')
-export class UsersController {}
+export class UsersController {    
+
+}

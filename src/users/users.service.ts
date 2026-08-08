@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { User } from 'generated/prisma/client';
+import { CreateUserDto } from './dto/create-user.dto';
 
 
 @Injectable()
@@ -41,4 +42,9 @@ export class UsersService {
         }
     }
 
+
+    // Create User By Admin or Super Admin
+    async CreateUser(createUserDto : CreateUserDto, currentUser : any) {
+        
+    }
 }
