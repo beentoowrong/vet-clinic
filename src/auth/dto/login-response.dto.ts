@@ -1,4 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Role } from "generated/prisma/enums"
+
 
 // 1. Sub-DTO khusus objek User
 export class UserResponseBodyDto {
@@ -10,6 +12,9 @@ export class UserResponseBodyDto {
 
     @ApiProperty({ example: 'johndoe@gmail.com' })
     email!: string;
+
+    @ApiProperty({ enum: Role, example: Role.DOCTOR })
+    role!: Role;
 }
 
 // 2. DTO untuk isi field Data

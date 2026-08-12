@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true })],
+  imports: [ConfigModule],
   providers: [PrismaService],
   exports: [PrismaService]
 })
