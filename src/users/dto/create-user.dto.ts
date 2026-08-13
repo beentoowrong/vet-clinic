@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsEmail, IsEnum, IsMobilePhone, IsNotEmpty, IsString, MinLength } from "class-validator"
+import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator"
 import { Role } from "generated/prisma/enums"
 
 

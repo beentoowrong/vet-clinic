@@ -5,6 +5,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt'
 import { CreateUserResponseDto } from './dto/create-user-response.dto';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
+import { PaginationDto } from './dto/pagination.dto';
+import { contains } from 'class-validator';
+
 
 @Injectable()
 export class UsersService {
@@ -46,7 +49,7 @@ export class UsersService {
 
 
     // Create User By Admin or Super Admin
-    async CreateUser(createUserDto : CreateUserDto, currentUser : ActiveUserData): Promise<CreateUserResponseDto> {
+    async createUser(createUserDto : CreateUserDto, currentUser : ActiveUserData): Promise<CreateUserResponseDto> {
         // cek aturan pembuatan role berdasarkan role pengakses
         if (
             currentUser.role === Role.ADMIN && 
@@ -84,6 +87,67 @@ export class UsersService {
                 email: newUser.email,
                 phoneNumber: newUser.phoneNumber,
                 role: newUser.role,
+            }
+        }
+    }
+
+    async findAllPaginated(paginationDto : PaginationDto) {
+        const { role, search, page = 1, limit = 10 } = paginationDto;
+
+        // convert ke number untuk memastikan tipe data akurat
+        const pageNum = Number(page)
+        const limitNum = Number(limit)
+
+        // 1. Hitung nilai skip untuk prisma offset pagination
+        const skip = (pageNum - 1) * limitNum;
+
+        // 2. Buat kondisi filter dinamis
+        const whereCondition : any = {};
+
+        if (role) {
+            whereCondition.role = role;
+        }
+
+        if (search) {
+            whereCondition.OR = [
+                { name: { contains: search, mode: 'insensitive' } },
+                { email: { contains: search, mode: 'insensitive' } }
+            ];
+        }
+
+        // 3. Ambil data & hitung total data secara paralel
+        const [users, totalData] = await Promise.all([
+            this.prismaService.user.findMany({
+                where: whereCondition,
+                skip: skip,
+                take: limitNum,
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true
+                },
+                orderBy: {
+                    id: 'asc'
+                }
+            }),
+            this.prismaService.user.count({
+                where: whereCondition,
+            })
+        ]);
+
+        // 4. Hitung total halaman
+        const totalPages = Math.ceil(totalData / limitNum)
+
+        return {
+            status : 200,
+            messsage: 'Success',
+            data : users,
+            meta: {
+                page: pageNum,
+                limit: limitNum,
+                totalData: totalData,
+                totalPages: totalPages
             }
         }
     }

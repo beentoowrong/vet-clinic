@@ -5,11 +5,16 @@ Base URL : /api/users
 ## Get All User
 Endpoint : GET /api/users
 
-Deskripsi : Mengambil seluruh list user sistem. Akses: ADMIN, SUPER ADMIN.
+Deskripsi : Mengambil seluruh list user sistem dengan dukungan Pagination dan Filtering Role. Akses: ADMIN, SUPER ADMIN
 
 - Headers 
 Authorization: Bearer <access_token>
-- Query Params: role(optional: ADMIN, DOCTOR, OWNER), page, limit
+- Query Params:
+| Parameter | Type | Required | Description | Default |
+| :--- | :--- | :--- | :--- | :--- |
+| `role` | String | Tidak | Filter berdasarkan role (`ADMIN`, `DOCTOR`, `OWNER`) | - |
+| `page` | Integer | Tidak | Halaman yang ingin ditampilkan (Minimal `1`) | `1` |
+| `limit` | Integer | Tidak | Jumlah data per halaman (Minimal `1`) | `10` |
 
 ### Request Body:
 Tidak ada request body (karena menggunakan method Get)
@@ -17,27 +22,44 @@ Tidak ada request body (karena menggunakan method Get)
 ### Responses Body (Success):
 ```
 {
-    "status" : 200,
-    "message" : "Success",
-    "data" : [
-        {
-            "id": 1,
-            "name" : "John Doe",
-            "email" : "johndoe@example.com",
-            "role" : "OWNER"
-        },
-        {
-            "id" : 2,
-            "name" : "Jahn Doe",
-            "email" : "jahndoe@example.com",
-            "role" : "DOCTOR"
-        }
-    ]
+  "status": 200,
+  "message": "Success",
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "OWNER"
+    },
+    {
+      "id": 2,
+      "name": "Jahn Doe",
+      "email": "jahndoe@example.com",
+      "role": "DOCTOR"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "totalData": 25,
+    "totalPages": 3
+  }
 }
 ```
 
 ### Response Body (Fail)
-- Unauthorized Responses (401)
+- Bad Request (400) - Parameter Tidak Valid: (Jika page bukan angka, atau role tidak sesuai dengan enum)
+```
+{
+  "status": 400,
+  "message": [
+    "page must be an integer number",
+    "role must be one of the following values: ADMIN, DOCTOR, OWNER"
+  ],
+  "data": null
+}
+```
+- Unauthorized Response (401):
 ```
 {
   "status": 401,
