@@ -30,8 +30,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             throw new UnauthorizedException('Token tidak valid')
         }
 
-        console.log('1. Payload terdekripsi', payload)
-
         // Cek apakah user ada dan kolom token di DB tidak null
         const user = await this.prismaService.user.findUnique({
             where: {

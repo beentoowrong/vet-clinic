@@ -18,3 +18,4 @@ export class UserDataDto {
     @ApiProperty({ enum: Role, example: Role.DOCTOR })
     role!: Role;
 }
+

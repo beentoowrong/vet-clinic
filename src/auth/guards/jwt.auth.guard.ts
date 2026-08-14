@@ -9,7 +9,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw err || new UnauthorizedException({
         status: 401,
-        message: 'Akses ditolak, token tidak ditemukan atau kedaluwarsa',
+        message: 'Access denied. Token not found or expired.',
         data: null,
       });
     }
