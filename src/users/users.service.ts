@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Role, User } from 'generated/prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -7,7 +7,8 @@ import { CreateUserResponseDto } from './dto/create-user-response.dto';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { PaginationDto } from './dto/pagination.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { Logger } from 'winston';
+import { add, Logger } from 'winston';
+import { UpdateMeDto } from './dto/update-user-profile.dto';
 
 
 @Injectable()
@@ -71,6 +72,117 @@ export class UsersService {
             message: "Success",
             data: user
         }
+    }
+
+    // Get Me Current User 
+    async getMe(userId: number) {
+        const user = await this.prismaService.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phoneNumber: true,
+                role: true,
+                createdAt: true,
+                doctorProfile: {
+                    select: {
+                        id: true,
+                        sipNumber: true,
+                        specialization: true,
+                        practiceDays: true,
+                        startTime: true,
+                        endTime: true,
+                    },
+                },
+                petOwnerProfile: {
+                    select: {
+                        address: true,
+                        emergencyContact: true,
+                    },
+                },
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException({
+                status: 404,
+                message: 'User not found',
+                data: null,
+            });
+        }
+
+        const { doctorProfile, petOwnerProfile } = user;
+        const profile =
+            user.role === Role.DOCTOR ? doctorProfile
+            : user.role === Role.OWNER ? petOwnerProfile
+            : null;
+
+        return {
+            status: 200,
+            message: 'Success',
+            data: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                role: user.role,
+                createdAt: user.createdAt,
+                ...(profile ? { profile } : {}),
+            },
+        };
+    }
+
+    // update current User
+    async updateMe(userId: number, updateMeDto: UpdateMeDto) {
+        this.logger.debug(`UserService.update( ${JSON.stringify(userId)}, ${JSON.stringify(updateMeDto)} )`)
+
+        const currentUser = await this.prismaService.user.findUnique({
+            where: { id: userId },
+            select: { id: true, role: true },
+        });
+        if (!currentUser) {
+            throw new NotFoundException({ status: 404, message: 'User not found', data: null });
+        }
+
+        const { name, phoneNumber, address, emergencyContact } = updateMeDto;
+
+        const data: any = {};
+        if (name !== undefined) data.name = name;
+        if (phoneNumber !== undefined) data.phoneNumber = phoneNumber;
+
+        if (address !== undefined || emergencyContact !== undefined) {
+            if (currentUser.role !== Role.OWNER) {
+                throw new ForbiddenException('Only pet owner can update address & emergency contact');
+            }
+            data.petOwnerProfile = {
+                upsert: {
+                    create: { address, emergencyContact },
+                    update: { address, emergencyContact },
+                },
+            };
+        }
+
+        const updatedUser = await this.prismaService.user.update({
+            where: { id: userId },
+            data,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phoneNumber: true,
+                role: true,
+                petOwnerProfile: {
+                    select: { id: true, address: true, emergencyContact: true },
+                },
+            },
+        });
+
+        return {
+            status: 200,
+            message: 'User updated successfully',
+            data: updatedUser,
+        };
     }
 
     // Create User By Admin or Super Admin

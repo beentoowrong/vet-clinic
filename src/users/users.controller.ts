@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Get, UseGuards, Post, Query, Param, ParseIntPipe, NotFoundException} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Get, UseGuards, Post, Query, Param, ParseIntPipe, NotFoundException, Patch} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam} from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
@@ -11,6 +11,8 @@ import type { ActiveUserData } from 'src/auth/interface/active-user-data.interfa
 import { PaginationDto } from './dto/pagination.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-response.dto';
 import { UserSuccessResponse } from 'src/common/dto/succes-response.dto';
+import { GetMeResponseDataDto } from './dto/get-me-response.dto';
+import { UpdateMeDto } from './dto/update-user-profile.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth('JWT-auth')
@@ -33,6 +35,26 @@ export class UsersController {
     async createUser(@Body() createUserDto : CreateUserDto, @CurrentUser() user: ActiveUserData) {
         return this.userService.createUser(createUserDto, user) 
 
+    }
+
+    @Get('me')
+    @ApiOperation({ 
+        summary: 'Get current aunthenticated user',
+        description: 'Retrieve account data who currently login with profile detail'
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Success',
+        type: GetMeResponseDataDto
+    })
+    async getMe(@CurrentUser() user: ActiveUserData) {
+        return this.userService.getMe(user.id)
+    }
+
+    @Patch('me')
+    @Roles(Role.OWNER)
+    async updateMe(@CurrentUser() user: ActiveUserData, @Body() updateMeDto : UpdateMeDto) {
+        return this.userService.updateMe(user.id, updateMeDto)
     }
 
     @Get()

@@ -398,7 +398,7 @@ Tidak ada request body (karena menggunakan method Get)
 ## Update Current User
 ENDPOINT : PATCH /api/users/me
 
-Deskripsi : User mengupdate data akun dasar (nama, email, no handphone) miliknya sendiri.
+Deskripsi : User mengupdate data akun dasar (nama, no handphone) miliknya sendiri.
 
 - Headers 
 Authorization : Bearer <access_token>
