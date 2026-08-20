@@ -122,7 +122,7 @@ export class AuthService {
         })
         return {
             status: 200,
-            message: "Logout Berhasil",
+            message: "Logout Successfully",
         }
     }
 }

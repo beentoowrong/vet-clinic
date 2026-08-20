@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Role, User } from 'generated/prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -7,9 +7,9 @@ import { CreateUserResponseDto } from './dto/create-user-response.dto';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { PaginationDto } from './dto/pagination.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { add, Logger } from 'winston';
+import { Logger } from 'winston';
 import { UpdateMeDto } from './dto/update-user-profile.dto';
-
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -183,6 +183,52 @@ export class UsersService {
             message: 'User updated successfully',
             data: updatedUser,
         };
+    }
+
+    // change password user who currently login  
+    async changePassword ( userId: number, changePasswordDto : ChangePasswordDto ) {
+        
+        // Validasi konfirmasi password baru
+        if (changePasswordDto.new_password !== changePasswordDto.new_password_confirmation) {
+            throw new BadRequestException(
+                'New password confirmation does not match with new password' 
+            );
+        }
+
+        // validasi password baru tidak sama dengan password lama
+        if (changePasswordDto.old_password === changePasswordDto.new_password) {
+            throw new BadRequestException(
+                'New password can not same with old password'
+            )
+        }
+
+        // ambil data user 
+        const user = await this.findById(userId)
+        if (!user) {
+            throw new UnauthorizedException('User not found')
+        }
+
+        // verifikasi password lama
+        const isOldPasswordValid = await bcrypt.compare(changePasswordDto.old_password, user.password);
+        if (!isOldPasswordValid) {
+            throw new UnauthorizedException('Old password no longer valid')
+        }
+
+        // Hash password baru
+        const hashedPassword = await bcrypt.hash(
+            changePasswordDto.new_password, 10,
+        )
+
+        // update password di database
+        await this.prismaService.user.update({
+            where: {id : userId},
+            data: {password: hashedPassword}
+        })
+
+        return {
+            status: 200,
+            message: 'Password changed successfully, please login with new password'
+        }
     }
 
     // Create User By Admin or Super Admin

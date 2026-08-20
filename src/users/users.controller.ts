@@ -13,6 +13,8 @@ import { PaginatedUsersResponseDto } from './dto/paginated-response.dto';
 import { UserSuccessResponse } from 'src/common/dto/succes-response.dto';
 import { GetMeResponseDataDto } from './dto/get-me-response.dto';
 import { UpdateMeDto } from './dto/update-user-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangePasswordResponseDto } from './dto/change-password-response.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth('JWT-auth')
@@ -55,6 +57,22 @@ export class UsersController {
     @Roles(Role.OWNER)
     async updateMe(@CurrentUser() user: ActiveUserData, @Body() updateMeDto : UpdateMeDto) {
         return this.userService.updateMe(user.id, updateMeDto)
+    }
+
+    @Patch('me/password')
+    @Roles(Role.OWNER)
+    @ApiOperation({
+        summary: 'Change password user',
+        description: 'Change password user who currently login. Need bearer token in Authorization header'
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Password succesfuly changed',
+        type: ChangePasswordResponseDto
+    })
+    async changePassword (@CurrentUser() user: ActiveUserData, @Body() changePasswordDto :  ChangePasswordDto) : Promise <ChangePasswordResponseDto> {
+        const userId = user.id;
+        return this.userService.changePassword(userId, changePasswordDto)          
     }
 
     @Get()
