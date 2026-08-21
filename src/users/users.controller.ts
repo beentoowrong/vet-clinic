@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Get, UseGuards, Post, Query, Param, ParseIntPipe, NotFoundException, Patch} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Get, UseGuards, Post, Query, Param, ParseIntPipe, NotFoundException, Patch, Delete} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam} from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
@@ -138,5 +138,61 @@ export class UsersController {
         }
 
         return result;
+    }
+
+    @Patch(':id/password')
+    @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Update user password by Admin / SuperAdmin',
+        description: 'Password user update by ID, only Admin and Super Admin can access '
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Password updated successfully',
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Old password does not match or invalid input',
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized - Token missing or invalid',
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden - Only Admin/SuperAdmin allowed',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'User not found',
+    })
+    async updatePassword(@Param ('id', ParseIntPipe) id: number, @Body() changePasswordDto: ChangePasswordDto) {
+        return this.userService.changePassword(id, changePasswordDto)
+    }
+
+    @Delete(':id')
+    @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Soft Delete User',
+        description: 'Soft Delete user Account, Only accessible for Admin and Super Admin',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'User deleted successfully',
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized - Token missing or invalid',
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden - Only Admin/SuperAdmin allowed',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'User not found or already deleted',
+    })
+    async remove(@Param('id', ParseIntPipe) id: number) {
+        return this.userService.softDeleteUser(id)
     }
 }

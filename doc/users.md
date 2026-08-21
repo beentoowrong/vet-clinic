@@ -285,7 +285,8 @@ Authorization: Bearer <access_token>
 ```
 {
     "oldPassword": "oldpassword", 
-    "newPassword": "newsecurepassword" 
+    "newPassword": "newsecurepassword",
+    "new_password_confirmation": "supersecretoldpassword123"
 }
 ```
 
@@ -466,6 +467,7 @@ Authorization : Bearer <access_token>
 {
     "oldPassword": "oldpassword", 
     "newPassword": "newsecurepassword" 
+    "new_password_confirmation": "supersecretoldpassword123"
 }
 ```
 

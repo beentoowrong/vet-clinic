@@ -10,6 +10,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { UpdateMeDto } from './dto/update-user-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import id from 'zod/v4/locales/id.js';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +22,7 @@ export class UsersService {
     // Find user by email
     async findOne(email: string): Promise<User | null> {
         return this.prismaService.user.findUnique({
-            where : { email }
+            where : { email, deletedAt: null, }
         })
     }
 
@@ -185,9 +186,11 @@ export class UsersService {
         };
     }
 
-    // change password user who currently login  
+    // change password user who currently login and change pass by admin and super admin
     async changePassword ( userId: number, changePasswordDto : ChangePasswordDto ) {
-        
+        this.logger.debug(`UserService.createUser( ${ JSON.stringify(userId)}, ${ JSON.stringify(changePasswordDto)} )`)
+
+
         // Validasi konfirmasi password baru
         if (changePasswordDto.new_password !== changePasswordDto.new_password_confirmation) {
             throw new BadRequestException(
@@ -303,7 +306,10 @@ export class UsersService {
         // 3. Ambil data & hitung total data secara paralel
         const [users, totalData] = await Promise.all([
             this.prismaService.user.findMany({
-                where: whereCondition,
+                where: {
+                    ...whereCondition, 
+                    deletedAt: null,
+                },
                 skip: skip,
                 take: limitNum,
                 select: {
@@ -335,5 +341,38 @@ export class UsersService {
                 totalPages: totalPages
             }
         }
+    }
+
+    async softDeleteUser(userId: number) {
+        // 1. Cek apakah user ada dan belum di soft delete
+        const user = await this.prismaService.user.findFirst({
+            where : {
+                id: userId,
+                deletedAt: null, // memastikan user belum di hapus sebelumnya 
+            }
+        })
+
+        if(!user) {
+            throw new NotFoundException({
+                status: 404,
+                message: 'User not found or already deleted',
+                data: null
+            })
+        }
+
+        // 2. Melakukan soft delete dengan mengisi deleteAt
+        await this.prismaService.user.update({
+            where: { id: userId },
+            data : {
+                deletedAt: new Date()
+            }
+        })
+
+        // 3. Return response sesuai API Spec
+        return {
+            status: 200,
+            message: "User deleted successfully",
+            data: null,
+        } 
     }
 }
