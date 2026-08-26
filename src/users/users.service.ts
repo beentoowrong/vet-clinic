@@ -10,7 +10,6 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { UpdateMeDto } from './dto/update-user-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import id from 'zod/v4/locales/id.js';
 
 @Injectable()
 export class UsersService {

@@ -46,6 +46,27 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+model Species {
+  id Int @id @default(autoincrement())
+  name String @unique
+
+  breeds Breed[]
+  pets Pet[]
+
+  @@map("species")
+}
+
+model Breed{
+  id Int @id @default(autoincrement())
+  name String
+  speciesId Int
+
+  species Species @relation(fields: [speciesId], references: [id])
+  pets Pet[]
+
+  @@map("breeds")
+}
+
 model User {
   id Int @id @default(autoincrement())
   name String
@@ -106,8 +127,8 @@ model Pet {
   id           Int      @id @default(autoincrement())
   ownerId      Int      @map("owner_id")
   name         String
-  species      String   // misal: "Dog", "Cat"
-  breed        String?  // misal: "Siberian Husky"
+  speciesId    Int
+  breedId      Int
   gender       Gender
   age          Int      // Dalam tahun/bulan
   weightKg     Float?   @map("weight_kg")
@@ -118,8 +139,13 @@ model Pet {
 
   // Relasi balik ke PetOwner
   owner PetOwner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  // Relasi species dan breed
+  species Species @relation(fields: [speciesId], references: [id])
+  breed Breed @relation(fields: [breedId], references: [id])
+
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
+
 
   @@map("pets")
 }
@@ -185,6 +211,7 @@ model MedicalRecord {
   doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   prescriptions Prescription[]
 
+  @@map("medical_records")
 }
 
 model Prescription {
@@ -198,4 +225,5 @@ model Prescription {
   createdAt    DateTime @default(now()) @map("created_at")
 
   medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+  @@map("prescriptions")
 }
