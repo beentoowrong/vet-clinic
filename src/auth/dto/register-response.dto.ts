@@ -1,35 +1,35 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterUserDataDto {
-    @ApiProperty({ example: 1 })
-    id!: number;
+  @ApiProperty({ example: 1 })
+  id!: number;
 
-    @ApiProperty({ example: 'John Doe' })
-    name!: string;
-    
-    @ApiProperty({ example: 'johndoe@example.com' })
-    email!: string;
+  @ApiProperty({ example: 'John Doe' })
+  name!: string;
 
-    @ApiProperty({ example: '08123456789' })
-    phoneNumber!: string;
+  @ApiProperty({ example: 'johndoe@example.com' })
+  email!: string;
 
-    @ApiProperty({ example: 'Jl. Kebayoran Lama' })
-    address?: string;
+  @ApiProperty({ example: '08123456789' })
+  phoneNumber!: string;
 
-    @ApiProperty({ example: 'OWNER' })
-    role!: string;
+  @ApiProperty({ example: 'Jl. Kebayoran Lama' })
+  address?: string;
 
-    @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
-    token!: string;
+  @ApiProperty({ example: 'OWNER' })
+  role!: string;
+
+  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
+  token!: string;
 }
 
 export class RegisterResponseDto {
-    @ApiProperty({ example: 201 })
-    status!: number;
+  @ApiProperty({ example: 201 })
+  status!: number;
 
-    @ApiProperty({ example: 'User registered successfully' })
-    message!: string;
+  @ApiProperty({ example: 'User registered successfully' })
+  message!: string;
 
-    @ApiProperty({ type: RegisterUserDataDto })
-    data!: RegisterUserDataDto;
+  @ApiProperty({ type: RegisterUserDataDto })
+  data!: RegisterUserDataDto;
 }

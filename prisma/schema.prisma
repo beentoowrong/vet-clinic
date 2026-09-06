@@ -5,7 +5,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma/client"
+  output   = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -64,6 +64,7 @@ model Breed{
   species Species @relation(fields: [speciesId], references: [id])
   pets Pet[]
 
+  @@unique([name, speciesId])
   @@map("breeds")
 }
 
@@ -82,6 +83,8 @@ model User {
   // Relasi 1-to-1 Opsional ke profil spesifik
   petOwnerProfile PetOwner?
   doctorProfile Doctor?
+
+  pets Pet[]
 
   @@map("users")
 }
@@ -134,6 +137,7 @@ model Pet {
   weightKg     Float?   @map("weight_kg")
   specialMarks String?  @map("special_marks") @db.Text
   isSterilized Boolean  @default(false) @map("is_sterilized")
+  createdBy Int @map("created_by")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -142,6 +146,7 @@ model Pet {
   // Relasi species dan breed
   species Species @relation(fields: [speciesId], references: [id])
   breed Breed @relation(fields: [breedId], references: [id])
+  user User @relation(fields: [createdBy], references: [id])
 
   appointments   Appointment[]
   medicalRecords MedicalRecord[]

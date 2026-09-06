@@ -8,21 +8,24 @@ import { SeederModule } from './seeder/seeder.module';
 import { ConfigModule } from '@nestjs/config';
 import { WinstonLogger, WinstonModule } from 'nest-winston';
 import { PetsModule } from './pets/pets.module';
-import * as winston from 'winston'
-
+import { SpeciesModule } from './species/species.module';
+import { BreedsModule } from './breeds/breeds.module';
+import * as winston from 'winston';
 
 @Module({
   imports: [
-    CommonModule, 
-    AuthModule, 
-    UsersModule, 
+    CommonModule,
+    AuthModule,
+    UsersModule,
     SeederModule,
     ConfigModule.forRoot({ isGlobal: true }),
     WinstonModule.forRoot({
       format: winston.format.json(),
-      transports: [new winston.transports.Console()]
+      transports: [new winston.transports.Console()],
     }),
-    PetsModule
+    PetsModule,
+    SpeciesModule,
+    BreedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
