@@ -91,5 +91,7 @@ export class PetsService {
     };
   }
 
-  // async getAllPets()
+  async findAllPaginatedPet() {
+    
+  }
 }
