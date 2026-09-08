@@ -31,7 +31,7 @@ export class PetsController {
   @Get()
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR)
   @ApiOperation({ summary: 'Get All Pets Pagination' })
-  async getAllPetPagination (@Query() PaginationDto: PaginationDto) {
+  async getAllPetPagination (@Query() PaginationDto: PaginationDto): Promise<PaginatedPetsResponseDto> {
     return this.petsService.findAllPaginatedPet(PaginationDto)
   }
 }

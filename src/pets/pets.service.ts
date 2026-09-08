@@ -7,7 +7,7 @@ import { CreatePetResponseDto } from './dto/create-pet-response.dto';
 import { ActiveUserData } from '../auth/interface/active-user-data.interface';
 import { Role } from 'generated/prisma/enums';
 import { PaginationDto } from './dto/pagination.dto'
-import { contains } from 'class-validator';
+import { PaginatedPetsResponseDto } from './dto/paginated-pets-response.dto';
 
 @Injectable()
 export class PetsService {
@@ -93,7 +93,7 @@ export class PetsService {
     };
   }
 
-  async findAllPaginatedPet(paginationDto: PaginationDto) {
+  async findAllPaginatedPet(paginationDto: PaginationDto): Promise<PaginatedPetsResponseDto> {
     const { search, speciesId, gender, page = 1, limit = 10  } = paginationDto;
 
     // convert ke number terlebih dahulu
@@ -128,12 +128,35 @@ export class PetsService {
         select: {
           id: true,
           name: true,
-          owner: true,
+          species: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
+          breed: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
           gender: true,
-          species: true,
-          breed: true,
-          age: true,
+          age: true,  
           weightKg: true,
+          specialMarks: true,
+          isSterilized: true,
+          owner: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  name: true,
+                }
+              }
+            }
+          },
+          createdBy: true,
+          createdAt: true,
         },
         orderBy: {
           id: 'asc'

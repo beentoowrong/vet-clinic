@@ -20,35 +20,86 @@ Tidak ada request body (karena menggunakan method Get)
   "data": [
     {
       "id": 1,
-      "name": "Pororo",
-      "species": "Dog",
-      "breed": "Siberian Husky",
+      "name": "Milky",
+      "species": {
+        "id": 1,
+        "name": "Dog"
+      },
+      "breed": {
+        "id": 1,
+        "name": "Labrador"
+      },
       "gender": "MALE",
-      "age": 3,
-      "weightKg": 4,
+      "age": 1,
+      "weightKg": 4.2,
+      "specialMarks": "Full white fur color with black paw",
+      "isSterilized": true,
+      "owner": {
+        "id": 1,
+        "user": {
+          "name": "Emmanuelle"
+        }
+      },
+      "createdBy": 5,
+      "createdAt": "2026-09-02T15:24:09.157Z"
+    },
+    {
+      "id": 2,
+      "name": "Pororo",
+      "species": {
+        "id": 1,
+        "name": "Dog"
+      },
+      "breed": {
+        "id": 1,
+        "name": "Labrador"
+      },
+      "gender": "MALE",
+      "age": 1,
+      "weightKg": 4.2,
       "specialMarks": "White color and blue eyes",
       "isSterilized": true,
       "owner": {
         "id": 1,
-        "name": "John Doe"
-      }
+        "user": {
+          "name": "Emmanuelle"
+        }
+      },
+      "createdBy": 5,
+      "createdAt": "2026-09-03T02:17:33.818Z"
     },
     {
-      "id": 2,
-      "name": "Luna",
-      "species": "Cat",
-      "breed": "Domestic",
-      "gender": "FEMALE",
+      "id": 3,
+      "name": "Ikhsan",
+      "species": {
+        "id": 2,
+        "name": "Cat"
+      },
+      "breed": {
+        "id": 2,
+        "name": "German Shepherd"
+      },
+      "gender": "MALE",
       "age": 1,
-      "weightKg": 4,
-      "specialMarks": "Calico fur",
+      "weightKg": 2,
+      "specialMarks": "Different eye color",
       "isSterilized": false,
       "owner": {
-        "id": 4,
-        "name": "Jane Doe"
-      }
+        "id": 2,
+        "user": {
+          "name": "Laisya Ainun Nazwa"
+        }
+      },
+      "createdBy": 6,
+      "createdAt": "2026-09-03T03:34:30.247Z"
     }
-  ]
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "totalData": 3,
+    "totalPages": 1
+  }
 }
 ```
 ### Response Body (Fail)

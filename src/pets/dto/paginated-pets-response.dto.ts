@@ -1,6 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from 'generated/prisma/enums';
 
+export class OwnerUserDto {
+  @ApiProperty({ example: 'Budi' })
+  name!: string;
+}
+
+export class OwnerSummaryDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ type: () => OwnerUserDto })
+  user!: OwnerUserDto;
+}
+
+export class SpeciesSummaryDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: 'Kucing' })
+  name!: string;
+}
+
+export class BreedSummaryDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: 'Persia' })
+  name!: string;
+}
+
 export class PetDataItemDto {
   @ApiProperty({ example: 1 })
   id!: number;
@@ -8,20 +37,17 @@ export class PetDataItemDto {
   @ApiProperty({ example: 'Pororo' })
   name!: string;
 
-  @ApiProperty({ example: 1 })
-  speciesId!: number;
-
-  @ApiProperty({ example: 'Kucing' })
-  speciesName!: string;
-
-  @ApiProperty({ example: 1 })
-  breedId!: number;
-
-  @ApiProperty({ example: 'Persia' })
-  breedName!: string;
+  @ApiProperty({ type: () => OwnerSummaryDto })
+  owner!: OwnerSummaryDto;
 
   @ApiProperty({ enum: Gender, example: Gender.MALE })
   gender!: Gender;
+
+  @ApiProperty({ type: () => SpeciesSummaryDto })
+  species!: SpeciesSummaryDto;
+
+  @ApiProperty({ type: () => BreedSummaryDto })
+  breed!: BreedSummaryDto;
 
   @ApiProperty({ example: 3 })
   age!: number;
@@ -34,12 +60,6 @@ export class PetDataItemDto {
 
   @ApiProperty({ example: true })
   isSterilized!: boolean;
-
-  @ApiProperty({ example: 1 })
-  ownerId!: number;
-
-  @ApiProperty({ example: 'Budi' })
-  ownerName!: string;
 
   @ApiProperty({ example: 1 })
   createdBy!: number;
@@ -69,9 +89,9 @@ export class PaginatedPetsResponseDto {
   @ApiProperty({ example: 'Success' })
   message!: string;
 
-  @ApiProperty({ type: [PetDataItemDto] })
+  @ApiProperty({ type: () => [PetDataItemDto] })
   data!: PetDataItemDto[];
 
-  @ApiProperty({ type: PaginationMetaDto })
+  @ApiProperty({ type: () => PaginationMetaDto })
   meta!: PaginationMetaDto;
 }
