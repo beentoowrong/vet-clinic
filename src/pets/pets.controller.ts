@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Query, UseGuards, Get } from '@nestjs/common';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
@@ -8,6 +8,8 @@ import { Role } from 'src/common/enum/role.enum';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import type { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { PetsService } from './pets.service';
+import { PaginationDto } from './dto/pagination.dto';
+import { PaginatedPetsResponseDto } from './dto/paginated-pets-response.dto'
 
 @ApiTags('Pets')
 @ApiBearerAuth('JWT-auth')
@@ -24,5 +26,12 @@ export class PetsController {
     @Body() createPetDto: CreatePetDto,
   ) {
     return this.petsService.createPet(user, createPetDto);
+  }
+
+  @Get()
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR)
+  @ApiOperation({ summary: 'Get All Pets Pagination' })
+  async getAllPetPagination (@Query() PaginationDto: PaginationDto) {
+    return this.petsService.findAllPaginatedPet(PaginationDto)
   }
 }

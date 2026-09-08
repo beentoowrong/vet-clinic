@@ -58,24 +58,4 @@ export class PaginationDto {
   @IsOptional()
   @IsEnum(Gender)
   gender?: Gender;
-
-  @ApiProperty({
-    description: 'Filter by sterilized status',
-    example: true,
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
-  isSterilized?: boolean;
-
-  @ApiProperty({
-    description: 'Filter by owner ID',
-    example: 1,
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  ownerId?: number;
 }

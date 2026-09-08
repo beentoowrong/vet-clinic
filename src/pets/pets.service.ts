@@ -6,6 +6,8 @@ import { CreatePetDto } from './dto/create-pet.dto';
 import { CreatePetResponseDto } from './dto/create-pet-response.dto';
 import { ActiveUserData } from '../auth/interface/active-user-data.interface';
 import { Role } from 'generated/prisma/enums';
+import { PaginationDto } from './dto/pagination.dto'
+import { contains } from 'class-validator';
 
 @Injectable()
 export class PetsService {
@@ -91,7 +93,70 @@ export class PetsService {
     };
   }
 
-  async findAllPaginatedPet() {
+  async findAllPaginatedPet(paginationDto: PaginationDto) {
+    const { search, speciesId, gender, page = 1, limit = 10  } = paginationDto;
+
+    // convert ke number terlebih dahulu
+    const pageNum = Number(page)
+    const limitNum = Number(limit)
+
+    // 1. Hitung nilai skip untuk prisma offset pagination
+    const skip = (pageNum - 1) * limitNum
     
+    // 2. Buat kondisi filter dinamis
+    let whereCondition: any = {};
+
+    if (gender) {
+      whereCondition.gender = gender;
+    } 
+
+    if (speciesId) {
+      whereCondition.speciesId = speciesId;
+    }
+
+    if (search) {
+      whereCondition = { name: { contains: search, mode: 'insensitive' } }
+    }
+
+    const [pets, totalData] = await Promise.all([
+      this.prismaService.pet.findMany({
+        where: {
+          ...whereCondition
+        },
+        skip: skip,
+        take: limitNum,
+        select: {
+          id: true,
+          name: true,
+          owner: true,
+          gender: true,
+          species: true,
+          breed: true,
+          age: true,
+          weightKg: true,
+        },
+        orderBy: {
+          id: 'asc'
+        },
+      }),
+      this.prismaService.pet.count({
+        where: whereCondition
+      })
+    ])
+
+    // 4. Hitung total halaman
+    const totalPages = Math.ceil(totalData / limitNum)
+
+    return {
+      status: 200,
+      message: 'Success',
+      data: pets,
+      meta: {
+        page: pageNum,
+        limit: limitNum,
+        totalData: totalData,
+        totalPages: totalPages
+      }
+    }
   }
 }

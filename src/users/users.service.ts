@@ -375,7 +375,7 @@ export class UsersService {
     const skip = (pageNum - 1) * limitNum;
 
     // 2. Buat kondisi filter dinamis
-    const whereCondition: any = {};
+    let whereCondition: any = {};
 
     if (role) {
       whereCondition.role = role;
