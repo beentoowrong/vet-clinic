@@ -203,8 +203,6 @@ export class UsersController {
     return this.userService.changeCredential(currentUser, id, updateCredentialDto)
   }
   
-
-
   @Patch(':id/password')
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiOperation({

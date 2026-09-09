@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, Param, ParseIntPipe, ForbiddenException } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Logger } from 'winston';
@@ -8,6 +8,7 @@ import { ActiveUserData } from '../auth/interface/active-user-data.interface';
 import { Role } from 'generated/prisma/enums';
 import { PaginationDto } from './dto/pagination.dto'
 import { PaginatedPetsResponseDto } from './dto/paginated-pets-response.dto';
+import { UpdatePetDto } from './dto/update-pet.dto';
 
 @Injectable()
 export class PetsService {
@@ -23,7 +24,6 @@ export class PetsService {
     let targetOwnerId: number;
 
     if (currentUser.role === Role.OWNER) {
-      // OWNER: selalu pakai ID sendiri, ownerId dari body DIABAIKAN
       const petOwner = await this.prismaService.petOwner.findUnique({
         where: { userId: currentUser.id },
       });
@@ -37,7 +37,6 @@ export class PetsService {
       }
       targetOwnerId = petOwner.id;
     } else {
-      // ADMIN / SUPER_ADMIN: ownerId wajib dari body
       if (!createPetDto.ownerId) {
         throw new NotFoundException({
           status: 404,
@@ -96,14 +95,10 @@ export class PetsService {
   async findAllPaginatedPet(paginationDto: PaginationDto): Promise<PaginatedPetsResponseDto> {
     const { search, speciesId, gender, page = 1, limit = 10  } = paginationDto;
 
-    // convert ke number terlebih dahulu
     const pageNum = Number(page)
     const limitNum = Number(limit)
-
-    // 1. Hitung nilai skip untuk prisma offset pagination
     const skip = (pageNum - 1) * limitNum
     
-    // 2. Buat kondisi filter dinamis
     let whereCondition: any = {};
 
     if (gender) {
@@ -167,7 +162,6 @@ export class PetsService {
       })
     ])
 
-    // 4. Hitung total halaman
     const totalPages = Math.ceil(totalData / limitNum)
 
     return {
@@ -180,6 +174,150 @@ export class PetsService {
         totalData: totalData,
         totalPages: totalPages
       }
+    }
+  }
+
+  async findPetById(@Param('id', ParseIntPipe) id: number) {
+    const pet = await this.prismaService.pet.findUnique({
+      where: { id },
+        select: {
+          id: true,
+          name: true,
+          species: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
+          breed: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
+          gender: true,
+          age: true,  
+          weightKg: true,
+          specialMarks: true,
+          isSterilized: true,
+          owner: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  name: true,
+                }
+              }
+            }
+          },
+          createdBy: true,
+          createdAt: true,
+        },
+    });
+
+    if (!pet) {
+      return null
+    };
+
+    return {
+      status: 200,
+      message: 'Success',
+      data: pet,
+    };
+  }
+
+  async updatePetByOwner(currentUser: ActiveUserData, petId: number, updatePetDto: UpdatePetDto) {
+    // 1. Cari pet yang mau diupdate
+    const existingPet = await this.prismaService.pet.findUnique({
+      where: { id: petId },
+      select: { id: true, ownerId: true, createdBy: true },
+    });
+
+    if (!existingPet) {
+      throw new NotFoundException({
+        status: 404,
+        message: 'Pet not found',
+        data: null,
+      });
+    }
+
+    // 2. Cek hak akses berdasarkan role
+    if (currentUser.role === Role.OWNER) {
+      // OWNER: hanya boleh update pet sendiri
+      const petOwner = await this.prismaService.petOwner.findUnique({
+        where: { userId: currentUser.id },
+      });
+
+      if (!petOwner || existingPet.ownerId !== petOwner.id) {
+        throw new ForbiddenException('You can only update your own pets');
+      }
+    } else {
+      // ADMIN / SUPER_ADMIN: hanya boleh update pet yang dibuat admin
+      const creator = await this.prismaService.user.findUnique({
+        where: { id: existingPet.createdBy },
+        select: { role: true },
+      });
+
+      if (!creator || (creator.role !== Role.ADMIN && creator.role !== Role.SUPER_ADMIN)) {
+        throw new ForbiddenException('Admin can only update pets created by admin');
+      }
+    }
+
+    // 3. Build data update (hanya credential, ownerId tidak bisa diubah)
+    const { name, speciesId, breedId, gender, age, weightkg, specialMarks, isSterilized } = updatePetDto
+
+    const data: any = {}
+    if (name !== undefined) data.name = name
+    if (speciesId !== undefined) data.speciesId = speciesId
+    if (breedId !== undefined) data.breedId = breedId
+    if (gender !== undefined) data.gender = gender
+    if (age !== undefined) data.age = age
+    if (weightkg !== undefined) data.weightKg = weightkg
+    if (specialMarks !== undefined) data.specialMarks = specialMarks
+    if (isSterilized !== undefined) data.isSterilized = isSterilized
+    
+    const updatePet = await this.prismaService.pet.update({
+      where : { id : petId },
+      data,
+      select: {
+          id: true,
+          name: true,
+          species: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
+          breed: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
+          gender: true,
+          age: true,  
+          weightKg: true,
+          specialMarks: true,
+          isSterilized: true,
+          owner: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  name: true,
+                }
+              }
+            }
+          },
+          createdBy: true,
+          createdAt: true,
+        },
+    })
+
+    return {
+      status: 200,
+      message: 'success',
+      data: updatePet,
     }
   }
 }

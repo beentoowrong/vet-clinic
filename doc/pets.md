@@ -133,25 +133,34 @@ Tidak ada request body (karena menggunakan method Get)
 
 ### Responses Body (Success):
 ```
-{
+{{
   "status": 200,
   "message": "Success",
-  "data": 
-    {
+  "data": {
+    "id": 2,
+    "name": "Pororo",
+    "species": {
       "id": 1,
-      "name": "Pororo",
-      "species": "Dog",
-      "breed": "Siberian Husky",
-      "gender": "MALE",
-      "age": 3,
-      "weightKg": 4,
-      "specialMarks": "White color and blue eyes",
-      "isSterilized": true,
-      "owner": {
-        "id": 1,
-        "name": "John Doe"
+      "name": "Dog"
+    },
+    "breed": {
+      "id": 1,
+      "name": "Labrador"
+    },
+    "gender": "MALE",
+    "age": 1,
+    "weightKg": 4.2,
+    "specialMarks": "White color and blue eyes",
+    "isSterilized": true,
+    "owner": {
+      "id": 1,
+      "user": {
+        "name": "Emmanuelle"
       }
-    }      
+    },
+    "createdBy": 5,
+    "createdAt": "2026-09-03T02:17:33.818Z"
+  }
 }
 ```
 
