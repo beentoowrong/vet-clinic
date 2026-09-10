@@ -350,6 +350,13 @@ export class UsersService {
       },
     });
 
+    // auto-buat PetOwner profile kalau role OWNER
+    if (createUserDto.role === Role.OWNER) {
+      await this.prismaService.petOwner.create({
+        data: { userId: newUser.id },
+      });
+    }
+
     return {
       status: 200,
       message: 'User created successfully',

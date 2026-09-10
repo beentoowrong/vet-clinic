@@ -57,6 +57,6 @@ export class PetsController {
       @Param('id', ParseIntPipe) id: number,
       @Body() updatePetDto : UpdatePetDto
     ) {
-      return this.petsService.updatePetByOwner(currentUser, id, updatePetDto)
+      return this.petsService.updatePet(currentUser, id, updatePetDto)
   }
 }

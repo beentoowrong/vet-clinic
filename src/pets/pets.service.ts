@@ -24,17 +24,11 @@ export class PetsService {
     let targetOwnerId: number;
 
     if (currentUser.role === Role.OWNER) {
-      const petOwner = await this.prismaService.petOwner.findUnique({
+      const petOwner = await this.prismaService.petOwner.upsert({
         where: { userId: currentUser.id },
+        create: { userId: currentUser.id },
+        update: {},
       });
-
-      if (!petOwner) {
-        throw new NotFoundException({
-          status: 404,
-          message: 'Pet Owner profile not found for current user',
-          data: null,
-        });
-      }
       targetOwnerId = petOwner.id;
     } else {
       if (!createPetDto.ownerId) {
@@ -46,7 +40,7 @@ export class PetsService {
       }
 
       const petOwner = await this.prismaService.petOwner.findUnique({
-        where: { id: createPetDto.ownerId },
+        where: { userId: createPetDto.ownerId },
       });
 
       if (!petOwner) {
@@ -226,7 +220,7 @@ export class PetsService {
     };
   }
 
-  async updatePetByOwner(currentUser: ActiveUserData, petId: number, updatePetDto: UpdatePetDto) {
+  async updatePet(currentUser: ActiveUserData, petId: number, updatePetDto: UpdatePetDto) {
     // 1. Cari pet yang mau diupdate
     const existingPet = await this.prismaService.pet.findUnique({
       where: { id: petId },
@@ -243,12 +237,14 @@ export class PetsService {
 
     // 2. Cek hak akses berdasarkan role
     if (currentUser.role === Role.OWNER) {
-      // OWNER: hanya boleh update pet sendiri
-      const petOwner = await this.prismaService.petOwner.findUnique({
+      // OWNER: auto-buat profil jika belum ada, lalu cek kepemilikan
+      const petOwner = await this.prismaService.petOwner.upsert({
         where: { userId: currentUser.id },
+        create: { userId: currentUser.id },
+        update: {},
       });
 
-      if (!petOwner || existingPet.ownerId !== petOwner.id) {
+      if (existingPet.ownerId !== petOwner.id) {
         throw new ForbiddenException('You can only update your own pets');
       }
     } else {
