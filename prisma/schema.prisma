@@ -61,7 +61,7 @@ model Breed{
   name String
   speciesId Int
 
-  species Species @relation(fields: [speciesId], references: [id])
+  species Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
   pets Pet[]
 
   @@unique([name, speciesId])

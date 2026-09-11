@@ -9,7 +9,6 @@ import { Role } from 'generated/prisma/enums';
 import { PaginationDto } from './dto/pagination.dto'
 import { PaginatedPetsResponseDto } from './dto/paginated-pets-response.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
-import tr from 'zod/v4/locales/tr.js';
 
 @Injectable()
 export class PetsService {
@@ -353,6 +352,36 @@ export class PetsService {
       status: 200,
       message: 'success',
       data: updatePet,
+    }
+  }
+
+  async deletePet(currentUser: ActiveUserData, petId: number) {
+    const existingPet = await this.prismaService.pet.findUnique({
+      where: { id: petId },
+      select: { id: true, ownerId: true }
+    });
+
+    if (!existingPet) {
+      throw new NotFoundException('Pet Not Found')
+    }
+
+    if (currentUser.role === Role.OWNER) {
+      const petOwner = await this.prismaService.petOwner.findUnique({
+        where: { userId: currentUser.id }
+      })
+
+      if(!petOwner || existingPet.ownerId !== petOwner.id) {
+        throw new ForbiddenException('You can only delete your own pets')
+      }
+    }
+
+    await this.prismaService.pet.delete({
+      where: { id: petId }
+    })
+
+    return {
+      status: 200,
+      message: 'Pet deleted successfully'
     }
   }
 }

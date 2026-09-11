@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { BreedDto } from './dto/breed.dto';
 
 @Injectable()
 export class BreedsService {
@@ -36,5 +37,59 @@ export class BreedsService {
       data: { name, speciesId },
       include: { species: { select: { id: true, name: true } } },
     });
+  }
+
+  async update(id : number, breedDto : BreedDto) {
+    const existing = await this.prismaService.breed.findUnique({
+      where : { id }
+    })
+
+    if (!existing) {
+      throw new NotFoundException('Breed not found')
+    }
+
+    const { name, speciesId } = breedDto
+
+    const data: any = {}
+    if ( name !== undefined ) data.name = name
+    if ( speciesId !== undefined ) data.speciesId = speciesId
+
+    const updateBreed = await this.prismaService.breed.update({
+      where: { id },
+      data,
+    })
+
+    return {
+      status: 200,
+      message: 'Breed updated successfully',
+      data: updateBreed
+    }
+  }
+
+  async delete(id: number) {
+    const existing = await this.prismaService.breed.findUnique({
+      where : { id }
+    })
+
+    if (!existing) {
+      throw new NotFoundException('Breed not found')
+    }
+
+    const petCount = await this.prismaService.pet.count({
+      where: { breedId: id }
+    })
+
+    if (petCount > 0) {
+      throw new ConflictException(`Can not delete breed: ${petCount} pet still use this breed`)
+    }
+
+    await this.prismaService.breed.delete({
+      where: { id }
+    })
+
+    return {
+      status: 200,
+      message: 'Breed deleted successfully'
+    }
   }
 }

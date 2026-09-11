@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Query, UseGuards, Get, ParseIntPipe, Param, NotFoundException, Patch } from '@nestjs/common';
+import { Body, Controller, Post, Query, UseGuards, Get, ParseIntPipe, Param, NotFoundException, Patch, Delete } from '@nestjs/common';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
@@ -55,7 +55,6 @@ export class PetsController {
     return result;
   }
 
-
   @Patch(':id')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.OWNER)
   async updatePetByOwner (
@@ -64,5 +63,11 @@ export class PetsController {
       @Body() updatePetDto : UpdatePetDto
     ) {
       return this.petsService.updatePet(currentUser, id, updatePetDto)
+  }
+
+  @Delete(':id')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.OWNER)
+  async deletePet(@CurrentUser() currentUser : ActiveUserData, @Param('id', ParseIntPipe) id: number) {
+    return this.petsService.deletePet(currentUser, id)
   }
 }
