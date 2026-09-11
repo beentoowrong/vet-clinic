@@ -9,6 +9,7 @@ import { Role } from 'generated/prisma/enums';
 import { PaginationDto } from './dto/pagination.dto'
 import { PaginatedPetsResponseDto } from './dto/paginated-pets-response.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
+import tr from 'zod/v4/locales/tr.js';
 
 @Injectable()
 export class PetsService {
@@ -171,9 +172,9 @@ export class PetsService {
     }
   }
 
-  async findPetById(@Param('id', ParseIntPipe) id: number) {
+  async findPetById(@Param('id', ParseIntPipe) PetId: number) {
     const pet = await this.prismaService.pet.findUnique({
-      where: { id },
+      where: { id: PetId },
         select: {
           id: true,
           name: true,
@@ -218,6 +219,44 @@ export class PetsService {
       message: 'Success',
       data: pet,
     };
+  }
+
+  async getAllMyPets(currentUser: ActiveUserData){
+    if (currentUser.role === Role.OWNER) {
+      const petOwner = await this.prismaService.petOwner.findUnique({
+        where: { userId: currentUser.id }
+      });
+
+      const pets = await this.prismaService.pet.findMany({
+        where: { ownerId: petOwner?.id },
+        select: {
+          id: true,
+          name: true,
+          gender: true,
+          age: true,
+          weightKg: true,
+          specialMarks: true,
+          species: {
+            select :{
+              name: true,
+            }
+          },
+          breed: {
+            select: {
+              name: true
+            },
+          },
+          isSterilized: true,
+          createdAt: true,
+        }
+      });
+      
+      return {
+        status: 200,
+        message: 'Success',
+        data: pets
+      }
+    }
   }
 
   async updatePet(currentUser: ActiveUserData, petId: number, updatePetDto: UpdatePetDto) {

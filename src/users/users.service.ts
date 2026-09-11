@@ -14,12 +14,10 @@ import { CreateUserResponseDto } from './dto/create-user-response.dto';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { PaginationDto } from './dto/pagination.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { exceptions, Logger } from 'winston';
+import { Logger } from 'winston';
 import { UpdateMeDto } from './dto/update-user-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateCredentialDto } from './dto/update-credential.dto';
-import { throwError } from 'rxjs';
-import tr from 'zod/v4/locales/tr.js';
 
 @Injectable()
 export class UsersService {

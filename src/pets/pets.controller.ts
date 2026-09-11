@@ -29,6 +29,12 @@ export class PetsController {
     return this.petsService.createPet(user, createPetDto);
   }
 
+  @Get('me')
+  @Roles(Role.OWNER)
+  async getAllMyPets(@CurrentUser() user: ActiveUserData) {
+    return this.petsService.getAllMyPets(user)
+  }
+
   @Get()
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR)
   @ApiOperation({ summary: 'Get All Pets Pagination' })
