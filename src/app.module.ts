@@ -10,6 +10,7 @@ import { WinstonLogger, WinstonModule } from 'nest-winston';
 import { PetsModule } from './pets/pets.module';
 import { SpeciesModule } from './species/species.module';
 import { BreedsModule } from './breeds/breeds.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 import * as winston from 'winston';
 
 @Module({
@@ -26,6 +27,7 @@ import * as winston from 'winston';
     PetsModule,
     SpeciesModule,
     BreedsModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
