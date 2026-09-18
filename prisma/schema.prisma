@@ -164,6 +164,7 @@ model Appointment {
   appointmentDate DateTime @map("appointment_date") @db.Date
   appointmentTime String @map("appointment_time") // format "14:00"
   serviceType ServiceType @default(IN_CLINIC) @map("service_type")
+  transportFee Decimal? @map("transport_fee") @db.Decimal(12, 2)
   status AppointmentStatus @default(CONFIRMED) @map("appointment_status")
   complaint String? @db.Text
   homeVisitAddress String? @map("home_visit_address") @db.Text
