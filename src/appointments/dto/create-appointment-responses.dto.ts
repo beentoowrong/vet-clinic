@@ -16,7 +16,7 @@ export class DataAppointmentResponseDto {
     ownerId!: number;
 
     @ApiProperty({ example: 1 })
-    doctorId!: number;
+    doctorId?: number;
     
     @ApiProperty({ enum: ServiceType, example: ServiceType.IN_CLINIC })
     serviceType!: ServiceType;

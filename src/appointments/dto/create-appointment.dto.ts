@@ -11,12 +11,7 @@ export class CreateAppointmentDto {
     @ApiProperty({ example: 1 })
     @IsNumber()
     @IsNotEmpty()
-    ownerId?: number;
-
-    @ApiProperty({ example: 1 })
-    @IsNumber()
-    @IsNotEmpty()
-    doctorId?: number;
+    doctorId!: number;
 
     @ApiProperty({ enum: ServiceType, example: ServiceType.HOME_VISIT })
     @IsEnum(ServiceType)

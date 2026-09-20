@@ -11,6 +11,7 @@ import { PetsModule } from './pets/pets.module';
 import { SpeciesModule } from './species/species.module';
 import { BreedsModule } from './breeds/breeds.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { DoctorsModule } from './doctors/doctors.module';
 import * as winston from 'winston';
 
 @Module({
@@ -28,6 +29,7 @@ import * as winston from 'winston';
     SpeciesModule,
     BreedsModule,
     AppointmentsModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

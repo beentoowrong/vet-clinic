@@ -1,8 +1,8 @@
-import { ForbiddenException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { Role } from 'generated/prisma/enums';
+import { AppointmentStatus, Role } from 'generated/prisma/enums';
 import { CreateAppointmentResponseDto } from './dto/create-appointment-responses.dto';
 
 @Injectable()
@@ -12,36 +12,102 @@ export class AppointmentsService {
     ) {}
     
     async createAppointment(currentUser: ActiveUserData, createAppointmentDto : CreateAppointmentDto): Promise<CreateAppointmentResponseDto> {
-        let targetOwnerId: number;
-        let targetDoctorId: number | null = null;
+        // 1. Get pet data and the owner
+        const pet = await this.prismaService.pet.findFirst({
+            where: {
+                id: createAppointmentDto.petId,
+            },
+            include: {
+                owner: true
+            },
+        });
 
-        // Cek role dan penentuan ID (OWNER atau ADMIN)
+        if (!pet) {
+            throw new NotFoundException(`Pet with ID ${createAppointmentDto.petId} not found`);
+        }
+        // get ownerId automatic from pet data
+        const targetOwnerId = pet.ownerId
+
+
+        // 2. Validate based on ROLE
+        let targetDoctorId: number = 0;
+
         if (currentUser.role === Role.OWNER) {
-            // if the role is owner, find petOwner data based userId from login token
-            const petOwner = await this.prismaService.petOwner.findUnique({
-                where : { userId: currentUser.id }
-            })
+            // A. If role is Owner
+            // Make sure userId on petOwner is the same with userId with the credential currently login
+            if (pet.ownerId !== currentUser.id) {
+                throw new ForbiddenException('You can only create an appointment for your own pet')
+            };
 
-            if (!petOwner) {
-                throw new NotFoundException('Pet owner profile not found')
+            if (createAppointmentDto.doctorId) {
+            const doctor = await this.prismaService.doctor.findUnique({
+                where: { id: createAppointmentDto.doctorId },
+            });
+            if (!doctor) {
+                throw new NotFoundException(`Doctor with ID ${createAppointmentDto.doctorId} not found`);
+            }
+            targetDoctorId = createAppointmentDto.doctorId;
+        }
+
+        } else if (currentUser.role === Role.ADMIN || currentUser.role === Role.SUPER_ADMIN) {
+            // B. if the role is Admin or Super Admin:
+            // Admin is mandatory to choose docter while make an appointment
+            if (!createAppointmentDto.doctorId) {
+                throw new BadRequestException('doctorId is required when created by Admin')
             }
 
-            targetOwnerId = petOwner.id
-
-            // Make sure if the pet that registered it is right pet owner
-            const pet = await this.prismaService.pet.findFirst({
-                where: {
-                    id : createAppointmentDto.petId,
-                    ownerId: targetOwnerId,
-                    deletedAt: null
-                }
+            const doctor = await this.prismaService.doctor.findUnique({
+                where: { id: createAppointmentDto.doctorId }
             });
 
-            if (!pet) {
-                throw new ForbiddenException('Pet does not belong to you or does not exist')
+            if (!doctor) {
+                throw new NotFoundException(`Doctor with ID ${createAppointmentDto.doctorId} not found`)
             }
-        } else if (currentUser.role === Role.ADMIN || currentUser.role === Role.SUPER_ADMIN) {
-            // if the role is ADMIN or SUPER ADMIN, fill the ownerId and doctorId
+            targetDoctorId = createAppointmentDto.doctorId
+        } else {
+            throw new ForbiddenException('You are not allowed to create an appointment');
+        }
+
+        // 3. Generate unique code appointment
+        const randomCode = Math.floor(10000000 + Math.random() * 90000000)
+        const appointmentCode = `APPT-${randomCode}` 
+
+
+        // 4. save into database
+        const newAppointment = await this.prismaService.appointment.create({
+            data: {
+                appointmentCode: appointmentCode,
+                petId: createAppointmentDto.petId,
+                ownerId: targetOwnerId, // Auto-assigned dari Pet
+                doctorId: targetDoctorId,
+                serviceType: createAppointmentDto.serviceType,
+                appointmentDate: createAppointmentDto.appointmentDate,
+                appointmentTime: createAppointmentDto.appointmentTime,
+                complaint: createAppointmentDto.complaint,
+                status: currentUser.role === Role.OWNER 
+                ? AppointmentStatus.CONFIRMED
+                : AppointmentStatus.IN_PROGRESS, // Otomatis Confirmed jika dibuat oleh Admin
+            },
+        });
+            
+        return {
+            status: 201,
+            messages: 'Succesfully created appointment',
+            data: {
+                id: newAppointment.id,
+                appointmentCode: newAppointment.appointmentCode,
+                petId: newAppointment.petId,
+                ownerId: newAppointment.ownerId,
+                doctorId: newAppointment.doctorId,
+                serviceType: newAppointment.serviceType,
+                transportFee: newAppointment.transportFee ? newAppointment.transportFee.toNumber() : null,
+                status: newAppointment.status,
+                appointmentDate: newAppointment.appointmentDate instanceof Date 
+                    ? newAppointment.appointmentDate.toISOString().split('T')[0] 
+                    : String(newAppointment.appointmentDate),
+                appointmentTime: newAppointment.appointmentTime,
+                complaint: newAppointment.complaint ?? '',
+            },
         }
     }
 }
