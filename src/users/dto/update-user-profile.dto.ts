@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateMeDto {
+  // Base fields (semua role)
   @ApiPropertyOptional({ example: 'John Doe' })
   @IsOptional()
   @IsString()
@@ -12,6 +13,7 @@ export class UpdateMeDto {
   @IsString()
   phoneNumber?: string;
 
+  // Owner fields
   @ApiPropertyOptional({ example: 'Jl. Sejaya Sentosa' })
   @IsOptional()
   @IsString()

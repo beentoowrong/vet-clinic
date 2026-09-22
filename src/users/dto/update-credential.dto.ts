@@ -24,4 +24,30 @@ export class UpdateCredentialDto {
     @IsEnum(Role)
     @IsOptional()
     role?: Role;
+
+    // Doctor fields (wajib kalau role = DOCTOR)
+    @ApiProperty({ example: 'SIP-VET/2026/001', required: false })
+    @IsString()
+    @IsOptional()
+    sipNumber?: string;
+
+    @ApiProperty({ example: 'Bedah Hewan', required: false })
+    @IsString()
+    @IsOptional()
+    specialization?: string;
+
+    @ApiProperty({ example: 'Senin - Jumat', required: false })
+    @IsString()
+    @IsOptional()
+    practiceDays?: string;
+
+    @ApiProperty({ example: '08:00', required: false })
+    @IsString()
+    @IsOptional()
+    startTime?: string;
+
+    @ApiProperty({ example: '16:00', required: false })
+    @IsString()
+    @IsOptional()
+    endTime?: string;
 }

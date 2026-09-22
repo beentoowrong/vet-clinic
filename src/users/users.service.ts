@@ -167,11 +167,10 @@ export class UsersService {
     if (name !== undefined) data.name = name;
     if (phoneNumber !== undefined) data.phoneNumber = phoneNumber;
 
+    // Owner profile
     if (address !== undefined || emergencyContact !== undefined) {
       if (currentUser.role !== Role.OWNER) {
-        throw new ForbiddenException(
-          'Only pet owner can update address & emergency contact',
-        );
+        throw new ForbiddenException('Only pet owner can update address & emergency contact');
       }
       data.petOwnerProfile = {
         upsert: {
@@ -221,7 +220,7 @@ export class UsersService {
       });
     }
 
-    const { email, name, phoneNumber, role } = updateCredentialDto
+    const { email, name, phoneNumber, role, sipNumber, specialization, practiceDays, startTime, endTime } = updateCredentialDto
 
     const data: any = {};
     if (email !== undefined || role !== undefined) {
@@ -232,9 +231,23 @@ export class UsersService {
       }
       if (email !== undefined) data.email = email;
       if (role !== undefined) data.role = role;
-    };
+    };  
     if (name !== undefined) data.name = name;
     if (phoneNumber !== undefined) data.phoneNumber = phoneNumber;
+
+
+    // admin update doctor profile
+    if (sipNumber !== undefined || specialization !== undefined || practiceDays !== undefined || startTime !== undefined || endTime !== undefined) {
+      if (targetUser.role !== Role.DOCTOR) {
+        throw new BadRequestException('Can only udpate doctor profile for doctor users')
+      }
+      data.doctorProfile = {
+        upsert : {
+          create :{ sipNumber, specialization, practiceDays, startTime, endTime },
+          update: { sipNumber, specialization, practiceDays, startTime, endTime },
+        }
+      }
+    }
 
     const updateCredentialUser = await this.prismaService.user.update({
       where: { id : userId},
@@ -244,8 +257,13 @@ export class UsersService {
         name: true,
         email: true,
         phoneNumber: true,
-        role: true
-      }
+        role: true,
+        doctorProfile: {
+          select: {
+            id: true, sipNumber: true, specialization: true, practiceDays: true, startTime: true, endTime: true
+          }
+        }
+      },
     })
 
     return {
@@ -352,6 +370,23 @@ export class UsersService {
     if (createUserDto.role === Role.OWNER) {
       await this.prismaService.petOwner.create({
         data: { userId: newUser.id },
+      });
+    }
+
+    // auto-buat Doctor profile kalau role DOCTOR
+    if (createUserDto.role === Role.DOCTOR) {
+      if (!createUserDto.sipNumber || !createUserDto.specialization) {
+        throw new BadRequestException('sipNumber and specialization are required for Doctor');
+      }
+      await this.prismaService.doctor.create({
+        data: {
+          userId: newUser.id,
+          sipNumber: createUserDto.sipNumber,
+          specialization: createUserDto.specialization,
+          practiceDays: createUserDto.practiceDays ?? '',
+          startTime: createUserDto.startTime ?? '',
+          endTime: createUserDto.endTime ?? '',
+        },
       });
     }
 
