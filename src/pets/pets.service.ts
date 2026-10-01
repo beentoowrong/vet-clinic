@@ -73,6 +73,7 @@ export class PetsService {
       status: 201,
       message: 'Pet created successfully',
       data: {
+        id : newPet.id,
         name: newPet.name,
         speciesId: newPet.speciesId,
         breedId: newPet.breedId,

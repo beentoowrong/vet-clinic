@@ -2,16 +2,11 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsNumber, IsEnum, IsDecimal, IsString } from "class-validator"
 import { AppointmentStatus, InvoiceStatus, ServiceType } from "generated/prisma/enums"
 
-export class UpdateAppointment { 
+export class UpdateAppointmentDto { 
     @ApiProperty({ example: 1 })
     @IsNumber()
     @IsOptional()
     petId? : number;
-
-    @ApiProperty({ example: 1 })
-    @IsNumber()
-    @IsOptional()
-    ownerId? : number;
 
     @ApiProperty({ example: 1 })
     @IsNumber()
@@ -37,7 +32,6 @@ export class UpdateAppointment {
     @IsDecimal()
     @IsOptional()
     transportFee? : number;
-
 
     @ApiProperty({ example: '2026-08-05' })
     @IsOptional()

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ServiceType } from 'generated/prisma/enums';
 
 export class CreateAppointmentDto {
@@ -8,10 +8,10 @@ export class CreateAppointmentDto {
     @IsNotEmpty()
     petId!: number;
 
-    @ApiProperty({ example: 1 })
+    @ApiProperty({ example: 1, required: false, description: 'Required for Admin/Super Admin, ignored for Owner' })
     @IsNumber()
-    @IsNotEmpty()
-    doctorId!: number;
+    @IsOptional()
+    doctorId?: number;
 
     @ApiProperty({ enum: ServiceType, example: ServiceType.HOME_VISIT })
     @IsEnum(ServiceType)

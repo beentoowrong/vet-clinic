@@ -2,6 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from 'generated/prisma/enums';
 
 export class PetDataDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
   @ApiProperty({ example: 'Pororo' })
   name!: string;
 

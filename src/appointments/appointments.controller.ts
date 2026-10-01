@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, ParseIntPipe, Patch, Post, UseGuards, Get, Query } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { RoleGuard } from 'src/common/guards/roles.guard';
@@ -7,8 +7,12 @@ import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { CreateAppointmentResponseDto } from './dto/create-appointment-responses.dto';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import type { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
+import { PaginationDto } from './dto/pagination.dto';
+import { PaginatedAppointmentsResponseDto } from './dto/pagination-appointment-response.dto';
+
 
 @ApiTags('Appointments')
 @ApiBearerAuth('JWT-auth')
@@ -26,5 +30,23 @@ export class AppointmentsController {
         @Body() dto: CreateAppointmentDto,
     ): Promise<CreateAppointmentResponseDto> {
         return this.appointmentService.createAppointment(user, dto);
+    }
+
+    @Patch(':id')
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.OWNER)
+    @ApiOperation({ summary: 'Update appointment' })
+    async update(
+        @CurrentUser() user: ActiveUserData,
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateAppointmentDto: UpdateAppointmentDto,
+    ) {
+        return this.appointmentService.updateAppointment(user, id, updateAppointmentDto);
+    }
+
+    @Get()
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR)
+    @ApiOperation({ summary: 'Get All Appointment Pagination' })
+    async getAllPetPagination (@Query() PaginationDto: PaginationDto): Promise<PaginatedAppointmentsResponseDto> {
+        return this.appointmentService.findAllAppointment(PaginationDto)
     }
 }

@@ -46,6 +46,11 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+enum InvoiceType {
+  DP_TRANSPORT
+  TREATMENT
+}
+
 model Species {
   id Int @id @default(autoincrement())
   name String @unique
@@ -160,22 +165,21 @@ model Appointment {
   appointmentCode String @unique @map("appointment_code")
   petId Int @map("pet_id")
   ownerId Int @map("owner_id")
-  doctorId Int @map("doctor_id")
+  doctorId Int? @map("doctor_id")
   appointmentDate DateTime @map("appointment_date") @db.Date
   appointmentTime String @map("appointment_time") // format "14:00"
   serviceType ServiceType @default(IN_CLINIC) @map("service_type")
   transportFee Decimal? @map("transport_fee") @db.Decimal(12, 2)
   status AppointmentStatus @default(CONFIRMED) @map("appointment_status")
   complaint String? @db.Text
-  homeVisitAddress String? @map("home_visit_address") @db.Text
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   // relasi 
   pet           Pet            @relation(fields: [petId], references: [id], onDelete: Cascade)
   owner         PetOwner       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  doctor        Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  invoice Invoice?
+  doctor        Doctor?        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  invoices Invoice[]
   medicalRecord MedicalRecord?
 
   @@map("appointments")
@@ -184,7 +188,9 @@ model Appointment {
 model Invoice {
   id Int @id @default(autoincrement())
   invoiceNumber String @unique @map("invoice_number")
-  appointmentId Int @unique @map("appointment_id")
+  appointmentId Int @map("appointment_id")
+  type InvoiceType @default(TREATMENT)
+  description String? @db.Text
   totalAmount Decimal @map("total_amount") @db.Decimal(12, 2)
   status InvoiceStatus @default(UNPAID)
   paymentDueDate DateTime @map("payment_due_date")
