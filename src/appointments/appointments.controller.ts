@@ -1,4 +1,4 @@
-import { Body, Controller, Param, ParseIntPipe, Patch, Post, UseGuards, Get, Query } from '@nestjs/common';
+import { Body, Controller, Param, ParseIntPipe, Patch, Post, UseGuards, Get, Query, NotFoundException } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { RoleGuard } from 'src/common/guards/roles.guard';
@@ -48,5 +48,18 @@ export class AppointmentsController {
     @ApiOperation({ summary: 'Get All Appointment Pagination' })
     async getAllPetPagination (@Query() PaginationDto: PaginationDto): Promise<PaginatedAppointmentsResponseDto> {
         return this.appointmentService.findAllAppointment(PaginationDto)
+    }
+
+    @Get(':id')
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR)
+    @ApiOperation({ summary: 'Get appointment By ID' })
+    async findOneAppointmentById(@Param('id', ParseIntPipe) AppointmentId: number){
+        const result = await this.appointmentService.getAppointmentById(AppointmentId)
+
+        if(!result) {
+            throw new NotFoundException('Appointment tidak ditemukan')
+        }
+
+        return result;
     }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Param, ParseIntPipe } from '@nestjs/common';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -369,6 +369,55 @@ export class AppointmentsService {
                 totalData: totalData,
                 totalPages: Math.ceil(totalData / limitNum),
             },
+        }
+    }
+
+    async getAppointmentById (@Param('id', ParseIntPipe) AppointmentId: number) {
+        const appointment = await this.prismaService.appointment.findUnique({
+            where: { id : AppointmentId },
+            select: {
+                id: true,
+                appointmentCode: true,
+                pet: { select: { id: true, name: true } },
+                owner: {
+                    select: {
+                        id: true,
+                        user: { select: { id: true, name: true } },
+                    },
+                },
+                doctor: {
+                    select: {
+                        id: true,
+                        specialization: true,
+                        user: { select: { id: true, name: true } },
+                    },
+                },
+                serviceType: true,
+                status: true,
+                appointmentDate: true,
+                appointmentTime: true,
+                complaint: true,
+                transportFee: true,
+                invoices: {
+                    select: {
+                        id: true,
+                        invoiceNumber: true,
+                        type: true,
+                        totalAmount: true,
+                        status: true,
+                    },
+                },
+            },
+        })
+
+        if (appointment) {
+            return null
+        }
+
+        return {
+            status: 200,
+            message: 'Success',
+            data: appointment
         }
     }
 }

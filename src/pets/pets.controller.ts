@@ -49,7 +49,7 @@ export class PetsController {
     const result = await this.petsService.findPetById(id)
 
     if (!result) {
-      throw new NotFoundException('User tidak ditemukan')
+      throw new NotFoundException('Pet tidak ditemukan')
     }
 
     return result;
