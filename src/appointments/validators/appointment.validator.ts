@@ -1,8 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { Role } from "src/common/enum/role.enum";
 import { PrismaService } from "src/common/prisma/prisma.service";
 import { UpdateAppointmentDto } from "../dto/update-appointment.dto";
-import { AppointmentStatus, InvoiceType } from "generated/prisma/enums";
+import { AppointmentStatus, InvoiceType, Role } from "generated/prisma/enums";
 
 
 
@@ -44,18 +43,19 @@ export class AppointmentValidator {
         })
 
         if (!doctor) {
-            throw new NotFoundException(`Pet with ID ${doctorId} not found`)
+            throw new NotFoundException(`Doctor with ID ${doctorId} not found`)
         }
     }
 
-    validateAdminDoctorRequirement(role: Role, doctorId: number) {
+    validateAdminDoctorRequirement(role: Role, doctorId?: number) {
         if ((role === Role.ADMIN || role === Role.SUPER_ADMIN) && !doctorId) {
             throw new BadRequestException('DoctorId is required when created by Admin')
         }
     }
 
     validateCreateRole(role: Role) {
-        if (![Role.OWNER, Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+        const allowed: Role[] = [Role.OWNER, Role.ADMIN, Role.SUPER_ADMIN];
+        if (!allowed.includes(role)) {
             throw new ForbiddenException('You are not allowed to create an appointment');
         }
     }
@@ -137,7 +137,8 @@ export class AppointmentValidator {
     }
 
     validateCancelPermission(role: Role) {
-        if (![Role.OWNER, Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+        const allowed: Role[] = [Role.OWNER, Role.ADMIN, Role.SUPER_ADMIN];
+        if (!allowed.includes(role)) {
             throw new ForbiddenException('You are not allowed to cancel an appointment');
         }
     }

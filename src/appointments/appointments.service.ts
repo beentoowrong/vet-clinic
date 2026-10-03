@@ -8,55 +8,44 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
 import { PaginationDto } from './dto/pagination.dto'
 import { PaginatedAppointmentsResponseDto } from './dto/pagination-appointment-response.dto';
+import { AppointmentValidator } from './validators/appointment.validator';
+import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 
 @Injectable()
 export class AppointmentsService {
     constructor(
-        private readonly prismaService : PrismaService
+        private readonly prismaService : PrismaService,
+        private readonly appointmentValidator : AppointmentValidator,
     ) {}
     
     async createAppointment(currentUser: ActiveUserData, createAppointmentDto : CreateAppointmentDto): Promise<CreateAppointmentResponseDto> {
         // Step 1. Cari pet, 404 kalau tidak ada. ownerId diambil dari pet.
-        const pet = await this.prismaService.pet.findUnique({
-            where: { id: createAppointmentDto.petId },
-            select: { id: true, ownerId: true },
-        });
-
-        if (!pet) {
-            throw new NotFoundException(`Pet with ID ${createAppointmentDto.petId} not found`);
-        }
+        const pet = await this.appointmentValidator.validatePetExist(createAppointmentDto.petId)
         const targetOwnerId = pet.ownerId;
 
         // Step 2. Branching berdasarkan role untuk doctorId.
         let targetDoctorId: number | null = null;
+        
 
         if (currentUser.role === Role.OWNER) {
             // OWNER: hanya pet sendiri. doctorId dari body diabaikan,
             // dokter di-assign admin belakangan.
-            const petOwner = await this.prismaService.petOwner.findUnique({
-                where: { userId: currentUser.id },
-            });
-
-            if (!petOwner || pet.ownerId !== petOwner.id) {
-                throw new ForbiddenException('You can only create an appointment for your own pet');
-            }
+            await this.appointmentValidator.validateOwnerAccess(currentUser.id, pet.ownerId)
             targetDoctorId = null;
+            
         } else if (currentUser.role === Role.ADMIN || currentUser.role === Role.SUPER_ADMIN) {
             // ADMIN: semua pet boleh, tapi doctorId wajib (400 kalau kosong).
-            if (!createAppointmentDto.doctorId) {
-                throw new BadRequestException('doctorId is required when created by Admin');
-            }
+            this.appointmentValidator.validateAdminDoctorRequirement(
+                currentUser.role,
+                createAppointmentDto.doctorId
+            )
 
-            const doctor = await this.prismaService.doctor.findUnique({
-                where: { id: createAppointmentDto.doctorId },
-            });
+            await this.appointmentValidator.validateDoctorExist(createAppointmentDto.doctorId!)
+            targetDoctorId = createAppointmentDto.doctorId!;
 
-            if (!doctor) {
-                throw new NotFoundException(`Doctor with ID ${createAppointmentDto.doctorId} not found`);
-            }
-            targetDoctorId = createAppointmentDto.doctorId;
+        
         } else {
-            throw new ForbiddenException('You are not allowed to create an appointment');
+            await this.appointmentValidator.validateCreateRole(currentUser.role)
         }
 
         // Step 3. Generate kode unik appointment.
