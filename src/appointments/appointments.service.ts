@@ -5,6 +5,7 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { AppointmentStatus, InvoiceStatus, InvoiceType, Role, ServiceType } from 'generated/prisma/enums';
 import { CreateAppointmentResponseDto } from './dto/create-appointment-responses.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
 import { PaginationDto } from './dto/pagination.dto'
 import { PaginatedAppointmentsResponseDto } from './dto/pagination-appointment-response.dto';
 
@@ -75,8 +76,8 @@ export class AppointmentsService {
                 appointmentTime: createAppointmentDto.appointmentTime,
                 complaint: createAppointmentDto.complaint,
                 status: currentUser.role === Role.OWNER 
-                ? AppointmentStatus.CONFIRMED
-                : AppointmentStatus.WAITING_FOR_PAYMENT,
+                ? AppointmentStatus.WAITING_FOR_PAYMENT
+                : AppointmentStatus.CONFIRMED,
             },
         });
             
@@ -276,6 +277,56 @@ export class AppointmentsService {
         }
     }
 
+    async cancelAppointment(currentUser: ActiveUserData, appointmentId: number, dto?: CancelAppointmentDto) {
+        const existing = await this.prismaService.appointment.findUnique({
+            where: { id: appointmentId },
+            select: { id: true, ownerId: true, status: true, appointmentCode: true },
+        });
+
+        if (!existing) {
+            throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);
+        }
+        if (existing.status === AppointmentStatus.COMPLETED) {
+            throw new BadRequestException('Completed appointment cannot be cancelled');
+        }
+        if (existing.status === AppointmentStatus.CANCELLED) {
+            throw new BadRequestException('Appointment is already cancelled');
+        }
+
+        // OWNER hanya milik sendiri, ADMIN bebas.
+        if (currentUser.role === Role.OWNER) {
+            const petOwner = await this.prismaService.petOwner.findUnique({
+                where: { userId: currentUser.id },
+            });
+            if (!petOwner || existing.ownerId !== petOwner.id) {
+                throw new ForbiddenException('You can only cancel your own appointment');
+            }
+        } else if (currentUser.role !== Role.ADMIN && currentUser.role !== Role.SUPER_ADMIN) {
+            throw new ForbiddenException('You are not allowed to cancel an appointment');
+        }
+
+        // Appointment cancel + invoice UNPAID ikut cancel. Yang PAID tetap (refund manual).
+        await this.prismaService.$transaction([
+            this.prismaService.appointment.update({
+                where: { id: appointmentId },
+                data: {
+                    status: AppointmentStatus.CANCELLED,
+                    cancelReason: dto?.cancelReason ?? null,
+                },
+            }),
+            this.prismaService.invoice.updateMany({
+                where: { appointmentId, status: InvoiceStatus.UNPAID },
+                data: { status: InvoiceStatus.CANCELLED },
+            }),
+        ]);
+
+        return {
+            status: 200,
+            message: 'Appointment cancelled successfully',
+            data: { id: existing.id, appointmentCode: existing.appointmentCode },
+        };
+    }
+
     async findAllAppointment(paginationDto: PaginationDto): Promise<PaginatedAppointmentsResponseDto> {
         const { page = 1, limit = 10, search, id, appointmentCode, serviceType, status } = paginationDto
 
@@ -410,7 +461,7 @@ export class AppointmentsService {
             },
         })
 
-        if (appointment) {
+        if (!appointment) {
             return null
         }
 

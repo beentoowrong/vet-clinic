@@ -172,6 +172,7 @@ model Appointment {
   transportFee Decimal? @map("transport_fee") @db.Decimal(12, 2)
   status AppointmentStatus @default(CONFIRMED) @map("appointment_status")
   complaint String? @db.Text
+  cancelReason String? @db.Text
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

@@ -8,6 +8,7 @@ import { Role } from 'src/common/enum/role.enum';
 import { CreateAppointmentResponseDto } from './dto/create-appointment-responses.dto';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import type { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { PaginationDto } from './dto/pagination.dto';
@@ -30,6 +31,17 @@ export class AppointmentsController {
         @Body() dto: CreateAppointmentDto,
     ): Promise<CreateAppointmentResponseDto> {
         return this.appointmentService.createAppointment(user, dto);
+    }
+
+    @Patch(':id/cancel')
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.OWNER)
+    @ApiOperation({ summary: 'Cancel appointment' })
+    async cancel(
+        @CurrentUser() user: ActiveUserData,
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: CancelAppointmentDto,
+    ) {
+        return this.appointmentService.cancelAppointment(user, id, dto);
     }
 
     @Patch(':id')
