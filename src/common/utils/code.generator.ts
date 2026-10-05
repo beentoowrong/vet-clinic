@@ -14,7 +14,7 @@ export class CodeGenerator {
         let exists = true;
 
         while(exists) {
-            code = `${prefix}-${dayjs().format('YYYYMMDD')}-${nanoid(8)}`;
+            code = `${prefix}-${dayjs().format('YYYYMMDD')}-${nanoid(10)}`;
 
             const found = await this.prismaService.appointment.findUnique({
                 where: { appointmentCode: code }

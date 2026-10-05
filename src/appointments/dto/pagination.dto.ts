@@ -52,7 +52,7 @@ export class PaginationDto {
 
     @ApiProperty({
         description: 'Search from appointment code',
-        example: 'APPT-26932280',
+        example: 'APPT-20261005-NqermtlUth',
         required: false,
     })
     @IsOptional()

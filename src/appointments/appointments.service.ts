@@ -58,6 +58,7 @@ export class AppointmentsService {
         const appointmentCode = await this.codeGenerator.generateUniqueCode('APPT')
 
 
+
         // Step 4. Simpan ke database.
         const newAppointment = await this.prismaService.appointment.create({
             data: {
@@ -165,10 +166,18 @@ export class AppointmentsService {
             if (updateAppointmentDto.serviceType !== undefined) data.serviceType = updateAppointmentDto.serviceType;
             if (updateAppointmentDto.appointmentStatus !== undefined) data.status = updateAppointmentDto.appointmentStatus;
 
+            if (updateAppointmentDto.serviceType !== ServiceType.HOME_VISIT) {
+
+            }
+
             if (updateAppointmentDto.transportFee !== undefined) {
-                data.transportFee = updateAppointmentDto.transportFee;
-                // transportFee jadi nominal invoice DP (buat kalau belum ada).
-                await this.invoiceHelper.handleTransportInvoice(appointmentId, updateAppointmentDto, existing)
+                if (updateAppointmentDto.serviceType !== ServiceType.HOME_VISIT) {
+                    throw new BadRequestException('You have to change service type into HOME CLINIC before input Transport Fee')
+                } else {
+                    data.transportFee = updateAppointmentDto.transportFee;
+                    // transportFee jadi nominal invoice DP (buat kalau belum ada).
+                    await this.invoiceHelper.handleTransportInvoice(appointmentId, updateAppointmentDto, existing)
+                }
             }
             if (updateAppointmentDto.appointmentDate !== undefined) data.appointmentDate = new Date(updateAppointmentDto.appointmentDate);
             if (updateAppointmentDto.appointmentTime !== undefined) data.appointmentTime = updateAppointmentDto.appointmentTime;
