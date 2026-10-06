@@ -25,4 +25,21 @@ export class CodeGenerator {
 
         return code!;
     }
+
+    async generateUniqueMedicalRecordCode(prefix: string): Promise<string> {
+        let code: string;
+        let exists = true;
+
+        while(exists) {
+            code = `${prefix}-${dayjs().format('YYYYMMDD')}-${nanoid(10)}`;
+
+            const found = await this.prismaService.medicalRecord.findUnique({
+                where: { recordCode: code }
+            })
+
+            if (!found) exists = false
+        }
+
+        return code!;
+    }
 }
