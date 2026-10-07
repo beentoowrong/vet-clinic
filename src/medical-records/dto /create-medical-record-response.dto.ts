@@ -22,7 +22,7 @@ export class DataMedicalRecordResponseDto {
     notes?: string;
     followUpDate?: string;
     createdAt? : string;
-    prescription? : PrescriptionResponseDto[]
+    prescriptions? : PrescriptionResponseDto[]
 }
 
 export class MedicalRecordResponseDto {
