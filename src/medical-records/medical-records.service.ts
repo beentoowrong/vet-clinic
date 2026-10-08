@@ -1,6 +1,6 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMedicalRecordDto } from './dto /create-medical-record.dto';
-import { MedicalRecordResponseDto } from './dto /create-medical-record-response.dto';
+import { CreateMedicalRecordResponseDto } from './dto /create-medical-record-response.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { Role, InvoiceType, AppointmentStatus } from 'generated/prisma/client';
@@ -15,7 +15,7 @@ export class MedicalRecordsService {
 
     ) {}
 
-    async createMedicalRecord( currentUser : ActiveUserData, createMedicalRecordDto: CreateMedicalRecordDto, appointmentId: number): Promise<MedicalRecordResponseDto> {
+    async createMedicalRecord( currentUser : ActiveUserData, createMedicalRecordDto: CreateMedicalRecordDto, appointmentId: number): Promise<CreateMedicalRecordResponseDto> {
         // Cek apakah yang akses role nya adalah dokter 
         if (currentUser.role !== Role.DOCTOR) {
             throw new ForbiddenException('You are not allowed to create Medical Record')
@@ -36,7 +36,15 @@ export class MedicalRecordsService {
         })
         if (!me) throw new ForbiddenException('Doctor profile not found')
         if (!existing.doctorId) throw new BadRequestException('Please assign doctor first')
-        if (existing.doctorId !== me.id) throw new ForbiddenException(`Only the assigned doctor with id ${currentUser.id}`)
+        if (existing.doctorId !== me.id) throw new ForbiddenException(`Only the assigned doctor with id ${me.id}`)
+
+        const duplicate = await this.prismaService.medicalRecord.findUnique({
+            where: { appointmentId },
+            select: { id: true },
+        });
+        if (duplicate) {
+            throw new ConflictException(`Medical record for appointment ID ${appointmentId} already exists, update it instead`);
+        }
 
         const medicalRecordCode = await this.codeGenerator.generateUniqueMedicalRecordCode('MR')
         const invoiceCode = await this.codeGenerator.generateUniqueCode('INV')
@@ -54,7 +62,12 @@ export class MedicalRecordsService {
                     diagnosis: createMedicalRecordDto.diagnosis,
                     treatment: createMedicalRecordDto.treatment,
                     notes: createMedicalRecordDto.notes,
-                }
+                    followUpDate: createMedicalRecordDto.followUpDate
+                    ? new Date(createMedicalRecordDto.followUpDate)
+                    : null,
+                    prescriptions: { create: createMedicalRecordDto.prescription ?? [] },
+                },
+                include: { prescriptions: true },
             }),
             this.prismaService.appointment.update({ 
                 where : { id: appointmentId },
@@ -92,7 +105,14 @@ export class MedicalRecordsService {
                 followUpDate: medicalRecord.followUpDate
                     ? medicalRecord.followUpDate.toISOString().split('T')[0]
                     : undefined,
-                prescriptions: [],
+                prescriptions: medicalRecord.prescriptions.map((p) => ({
+                    id: p.id,
+                    medicineName: p.medicineName,
+                    dosage: p.dosage,
+                    frequency: p.frequency,
+                    duration: p.duration,
+                    notes: p.notes ?? undefined,
+                })),
             },
         };
     }

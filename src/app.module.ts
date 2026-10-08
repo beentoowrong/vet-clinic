@@ -6,13 +6,12 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SeederModule } from './seeder/seeder.module';
 import { ConfigModule } from '@nestjs/config';
-import { WinstonLogger, WinstonModule } from 'nest-winston';
+import { WinstonModule } from 'nest-winston';
 import { PetsModule } from './pets/pets.module';
 import { SpeciesModule } from './species/species.module';
 import { BreedsModule } from './breeds/breeds.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { DoctorsModule } from './doctors/doctors.module';
-import { MedicalRecordModule } from './medical-record/medical-record.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
 import * as winston from 'winston';
 
@@ -32,7 +31,6 @@ import * as winston from 'winston';
     BreedsModule,
     AppointmentsModule,
     DoctorsModule,
-    MedicalRecordModule,
     MedicalRecordsModule,
   ],
   controllers: [AppController],
