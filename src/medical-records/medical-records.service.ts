@@ -1,10 +1,11 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateMedicalRecordDto } from './dto /create-medical-record.dto';
-import { CreateMedicalRecordResponseDto } from './dto /create-medical-record-response.dto';
+import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
+import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { Role, InvoiceType, AppointmentStatus } from 'generated/prisma/client';
 import { CodeGenerator } from 'src/common/utils/code.generator';
+import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 
 
 @Injectable()
@@ -115,5 +116,69 @@ export class MedicalRecordsService {
                 })),
             },
         };
+    }
+
+    async updateMedicalRecord(currentUser : ActiveUserData, updateMedicalRecord : UpdateMedicalRecordDto, medicalRecordId : number) {
+        const existing = await this.prismaService.medicalRecord.findUnique({
+            where: { id: medicalRecordId },
+            select: { id: true, recordCode: true, appointmentId: true, doctorId: true}
+        })
+
+        if(!existing) {
+            throw new NotFoundException(`Medical Record with id ${medicalRecordId} not found`)
+        }
+        
+        const me = await this.prismaService.doctor.findUnique({
+            where: { userId : currentUser.id },
+            select: { id: true }
+        })
+        if (!me) throw new ForbiddenException('Doctor profile not found')
+        if (!existing.doctorId) throw new BadRequestException('Please assign doctor first')
+        if (existing.doctorId !== me.id) throw new ForbiddenException(`Only the assigned doctor with id ${me.id}`)
+
+        const data : any = {}
+
+        if (updateMedicalRecord.weightKg !== undefined) data.weightKg = updateMedicalRecord.weightKg;
+        if (updateMedicalRecord.temperatureCelcius !== undefined) data.temperatureCelcius = updateMedicalRecord.temperatureCelcius;
+        if (updateMedicalRecord.symptoms !== undefined) data.symptoms = updateMedicalRecord.symptoms;
+        if (updateMedicalRecord.diagnosis !== undefined) data.diagnosis = updateMedicalRecord.diagnosis;
+        if (updateMedicalRecord.treatment !== undefined) data.treatment = updateMedicalRecord.treatment;
+        if (updateMedicalRecord.notes !== undefined) data.notes = updateMedicalRecord.notes;
+        if (updateMedicalRecord.followUpDate !== undefined) data.followUpDate = new Date(updateMedicalRecord.followUpDate);
+        if (updateMedicalRecord.prescription !== undefined) {
+            data.prescriptions = {
+                deleteMany: {},
+                create: updateMedicalRecord.prescription,
+            };
+        }
+
+        const updated = await this.prismaService.medicalRecord.update({
+            where: { id: medicalRecordId },
+            data,
+            select: {
+                id: true,
+                recordCode: true,
+                appointmentId: true,
+                petId: true,
+                doctorId: true,
+                weightKg: true,
+                temperatureCelcius: true,
+                symptoms: true,
+                diagnosis: true,
+                treatment: true, 
+                notes: true,
+                followUpDate: true,
+                prescriptions: true,
+            }
+        })
+
+        return {
+            status: 200,
+            message: 'Medical record updated successfully',
+            data: {
+                updated,
+                followUpDate: updated.followUpDate instanceof Date ? updated.followUpDate.toISOString().split('T')[0] : String(updated.followUpDate)
+            }
+        }
     }
 }
