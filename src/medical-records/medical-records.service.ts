@@ -6,6 +6,8 @@ import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { Role, InvoiceType, AppointmentStatus } from 'generated/prisma/client';
 import { CodeGenerator } from 'src/common/utils/code.generator';
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
+import { MedicalRecordPaginationDto } from './dto/pagination-medical-record.dto';
+import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-record-response.dto';
 
 
 @Injectable()
@@ -180,5 +182,90 @@ export class MedicalRecordsService {
                 followUpDate: updated.followUpDate instanceof Date ? updated.followUpDate.toISOString().split('T')[0] : String(updated.followUpDate)
             }
         }
+    }
+
+    async findAllMedicalRecords(currentUser : ActiveUserData, medicalRecordPaginationDto : MedicalRecordPaginationDto): Promise<PaginatedMedicalRecordsResponseDto> {
+        const pageNum = Number(medicalRecordPaginationDto.page ?? 1);
+        const limitNum = Number(medicalRecordPaginationDto.limit ?? 10);
+        const skip = (pageNum - 1) * limitNum;
+
+        const whereCondition: any = {};
+
+        // Scope berdasarkan role.
+        if (currentUser.role === Role.OWNER) {
+            whereCondition.pet = { owner: { userId: currentUser.id } };
+        } else if (currentUser.role === Role.DOCTOR) {
+            whereCondition.doctor = { userId: currentUser.id };
+        } else if (currentUser.role !== Role.ADMIN && currentUser.role !== Role.SUPER_ADMIN) {
+            throw new ForbiddenException('You are not allowed to view medical records');
+        }
+
+        if (medicalRecordPaginationDto.searchMedicalRecordCode) {
+            whereCondition.recordCode = { contains: medicalRecordPaginationDto.searchMedicalRecordCode, mode: 'insensitive' };
+        }
+        if (medicalRecordPaginationDto.petId) {
+            whereCondition.petId = medicalRecordPaginationDto.petId;
+        }
+        if (medicalRecordPaginationDto.appointmentId) {
+            whereCondition.appointmentId = medicalRecordPaginationDto.appointmentId;
+        }
+
+        const [records, totalData] = await Promise.all([
+            this.prismaService.medicalRecord.findMany({
+                where: whereCondition,
+                skip,
+                take: limitNum,
+                select: {
+                    id: true,
+                    recordCode: true,
+                    weightKg: true,
+                    temperatureCelcius: true,
+                    symptoms: true,
+                    diagnosis: true,
+                    treatment: true,
+                    notes: true,
+                    followUpDate: true,
+                    createdAt: true,
+                    appointment: { select: { id: true, appointmentCode: true } },
+                    pet: { select: { id: true, name: true } },
+                    doctor: {
+                        select: {
+                            id: true,
+                            specialization: true,
+                            user: { select: { id: true, name: true } },
+                        },
+                    },
+                    prescriptions: {
+                        select: {
+                            id: true,
+                            medicineName: true,
+                            dosage: true,
+                            frequency: true,
+                            duration: true,
+                            notes: true,
+                        },
+                    },
+                },
+                orderBy: { id: 'desc' },
+            }),
+            this.prismaService.medicalRecord.count({ where: whereCondition }),
+        ]);
+
+        return {
+            status: 200,
+            message: 'Success',
+            data: records.map((r) => ({
+                ...r,
+                followUpDate: r.followUpDate instanceof Date
+                    ? r.followUpDate.toISOString().split('T')[0]
+                    : r.followUpDate,
+            })),
+            meta: {
+                page: pageNum,
+                limit: limitNum,
+                totalData,
+                totalPages: Math.ceil(totalData / limitNum),
+            },
+        };
     }
 }

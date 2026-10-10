@@ -264,7 +264,7 @@ export class AppointmentsService {
 
     async findAllAppointment(paginationDto: PaginationDto): Promise<PaginatedAppointmentsResponseDto> {
         const pageNum = Number(paginationDto.page ?? 1)
-        const limitNum = Number(paginationDto.page ?? 1)
+        const limitNum = Number(paginationDto.limit ?? 10)
         const skip = (pageNum - 1) * limitNum
 
         const where =  buildWhereCondition(paginationDto);

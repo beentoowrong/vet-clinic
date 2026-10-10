@@ -1,4 +1,4 @@
-import { Body, Controller, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { MedicalRecordsService } from './medical-records.service';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
@@ -11,6 +11,8 @@ import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { UpdateAppointmentDto } from 'src/appointments/dto/update-appointment.dto';
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
+import { MedicalRecordPaginationDto } from './dto/pagination-medical-record.dto';
+import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-record-response.dto';
 
 
 
@@ -28,7 +30,7 @@ export class MedicalRecordsController {
     @ApiResponse({
         status: 201,
         description: 'User registered successfully',
-        type: CreateMedicalRecordDto,
+        type: CreateMedicalRecordResponseDto,
     })
     async create(
         @CurrentUser() user: ActiveUserData,
@@ -38,6 +40,16 @@ export class MedicalRecordsController {
         return this.mediaRecordService.createMedicalRecord(user, dto, appointmentId)
     }
 
+
+    @Get()
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.DOCTOR, Role.OWNER)
+    @ApiResponse({ status: 200, type: PaginatedMedicalRecordsResponseDto })
+    async findAll(
+        @CurrentUser() user: ActiveUserData,
+        @Query() dto: MedicalRecordPaginationDto,
+    ): Promise<PaginatedMedicalRecordsResponseDto> {
+        return this.mediaRecordService.findAllMedicalRecords(user, dto);
+    }
 
     @Patch(':medicalRecordId')
     @Roles(Role.DOCTOR)

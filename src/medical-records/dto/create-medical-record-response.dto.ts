@@ -60,12 +60,17 @@ export class DataMedicalRecordResponseDto {
     @ApiProperty({ example: '2026-08-05' })
     createdAt? : string;
 
-    @ApiProperty({ type: () => PrescriptionResponseDto, required: false })
+    @ApiProperty({ type: [PrescriptionResponseDto], required: false })
     prescriptions? : PrescriptionResponseDto[]
 }
 
 export class CreateMedicalRecordResponseDto {
+    @ApiProperty({ example: 201 })
     status!: 201;
+
+    @ApiProperty({ example: 'Medical Record Successfuly Created' })
     message!: "Medical Record Successfuly Created";
+
+    @ApiProperty({ type: () => DataMedicalRecordResponseDto })
     data!: DataMedicalRecordResponseDto;
 }
