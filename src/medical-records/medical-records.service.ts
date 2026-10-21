@@ -8,6 +8,7 @@ import { CodeGenerator } from 'src/common/utils/code.generator';
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 import { MedicalRecordPaginationDto } from './dto/pagination-medical-record.dto';
 import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-record-response.dto';
+import { PrescriptionDto } from './dto/prescription.dto';
 
 
 @Injectable()
@@ -118,6 +119,47 @@ export class MedicalRecordsService {
                 })),
             },
         };
+    }
+
+    async createPrescriptionMedicalRecordId ( currentUser : ActiveUserData, createPrescriptionDto : PrescriptionDto, medicalRecordId: number) {
+        // Cek apakah yang akses role nya adalah dokter 
+        if (currentUser.role !== Role.DOCTOR) {
+            throw new ForbiddenException('You are not allowed to create Medical Record')
+        }
+        
+        const existing = await this.prismaService.medicalRecord.findUnique({
+            where: { id: medicalRecordId },
+            select: { id: true, doctorId: true }
+        })
+
+        if (!existing) {
+            throw new NotFoundException(`Medical Record with id ${medicalRecordId} not found`)
+        }
+
+        const me = await this.prismaService.doctor.findUnique({
+            where: { userId : currentUser.id },
+            select: { id: true }
+        })
+        if (!me) throw new ForbiddenException('Doctor profile not found')
+        if (!existing.doctorId) throw new BadRequestException('Please assign doctor first')
+        if (existing.doctorId !== me.id) throw new ForbiddenException(`Only the assigned doctor with id ${me.id}`)
+        
+        const newPrescription = await this.prismaService.prescription.create({
+            data: {
+                medicalRecordId: medicalRecordId,
+                medicineName: createPrescriptionDto.medicineName,
+                dosage: createPrescriptionDto.dosage,
+                frequency: createPrescriptionDto.frequency,
+                duration: createPrescriptionDto.duration,
+                notes: createPrescriptionDto.notes
+            }
+        })
+
+        return {
+            status: 201,
+            message: 'New prescription successfully created',
+            newPrescription
+        }
     }
 
     async updateMedicalRecord(currentUser : ActiveUserData, updateMedicalRecord : UpdateMedicalRecordDto, medicalRecordId : number) {

@@ -13,6 +13,7 @@ import { UpdateAppointmentDto } from 'src/appointments/dto/update-appointment.dt
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 import { MedicalRecordPaginationDto } from './dto/pagination-medical-record.dto';
 import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-record-response.dto';
+import { PrescriptionDto } from './dto/prescription.dto';
 
 
 
@@ -22,7 +23,7 @@ import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-rec
 @Controller('medical-records')
 export class MedicalRecordsController {
     constructor(
-        private readonly mediaRecordService : MedicalRecordsService
+        private readonly medicalRecordService : MedicalRecordsService
     ) {}
 
     @Post(':appointmentId')
@@ -37,7 +38,7 @@ export class MedicalRecordsController {
         @Param('appointmentId', ParseIntPipe) appointmentId: number, 
         @Body() dto: CreateMedicalRecordDto 
         ): Promise<CreateMedicalRecordResponseDto> { 
-        return this.mediaRecordService.createMedicalRecord(user, dto, appointmentId)
+        return this.medicalRecordService.createMedicalRecord(user, dto, appointmentId)
     }
 
 
@@ -48,7 +49,7 @@ export class MedicalRecordsController {
         @CurrentUser() user: ActiveUserData,
         @Query() dto: MedicalRecordPaginationDto,
     ): Promise<PaginatedMedicalRecordsResponseDto> {
-        return this.mediaRecordService.findAllMedicalRecords(user, dto);
+        return this.medicalRecordService.findAllMedicalRecords(user, dto);
     }
 
     @Patch(':medicalRecordId')
@@ -62,6 +63,16 @@ export class MedicalRecordsController {
         @CurrentUser() user: ActiveUserData,
         @Param('medicalRecordId', ParseIntPipe) medicalRecordId : number,
         @Body() dto : UpdateMedicalRecordDto){
-            return this.mediaRecordService.updateMedicalRecord(user, dto, medicalRecordId)
+            return this.medicalRecordService.updateMedicalRecord(user, dto, medicalRecordId)
+    }
+
+    @Post(':medicalRecordId/prescription')
+    @Roles(Role.DOCTOR)
+    async createPrescription(
+        @CurrentUser() user: ActiveUserData,
+        @Param('medicalRecordId', ParseIntPipe) medicalRecordId : number,
+        @Body() createPrescriptionDto : PrescriptionDto 
+    ) {
+        return this.medicalRecordService.createPrescriptionMedicalRecordId(user, createPrescriptionDto, medicalRecordId)
     }
 }
