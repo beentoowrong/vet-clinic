@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class PrescriptionResponseDto {
+export class MedicalRecordPrescriptionResponseDto {
     @ApiProperty({ example: 1 })
     id!: number;
 
@@ -17,7 +17,7 @@ export class PrescriptionResponseDto {
     duration!: string;
     
     @ApiProperty({ example: 'Hentikan jika muntah sudah berhenti' })
-    notes?: string;
+    notes?: string | null;
 }
 
 export class DataMedicalRecordResponseDto {
@@ -60,8 +60,8 @@ export class DataMedicalRecordResponseDto {
     @ApiProperty({ example: '2026-08-05' })
     createdAt? : string;
 
-    @ApiProperty({ type: [PrescriptionResponseDto], required: false })
-    prescriptions? : PrescriptionResponseDto[]
+    @ApiProperty({ type: [MedicalRecordPrescriptionResponseDto], required: false })
+    prescriptions? : MedicalRecordPrescriptionResponseDto[]
 }
 
 export class CreateMedicalRecordResponseDto {

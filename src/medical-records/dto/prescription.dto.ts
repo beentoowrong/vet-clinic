@@ -25,5 +25,5 @@ export class PrescriptionDto {
     @ApiProperty({ example: 'Hentikan jika muntah berhenti', required: false })
     @IsString()
     @IsOptional()
-    notes?: string;
+    notes?: string | null;
 }

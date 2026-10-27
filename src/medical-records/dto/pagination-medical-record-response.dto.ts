@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { MedicalRecordPrescriptionResponseDto } from "./create-medical-record-response.dto";
 
 export class MedicalRecordUserDto {
     @ApiProperty({ example: 1 })
@@ -33,26 +34,6 @@ export class MedicalRecordAppointmentDto {
 
     @ApiProperty({ example: 'APPT-33992096' })
     appointmentCode!: string;
-}
-
-export class MedicalRecordPrescriptionDto {
-    @ApiProperty({ example: 1 })
-    id!: number;
-
-    @ApiProperty({ example: 'Ondansetron Syrup 4mg' })
-    medicineName!: string;
-
-    @ApiProperty({ example: '0.5 ml' })
-    dosage!: string;
-
-    @ApiProperty({ example: '2x sehari sesudah makan' })
-    frequency!: string;
-
-    @ApiProperty({ example: '5 hari' })
-    duration!: string;
-
-    @ApiProperty({ example: 'Hentikan jika muntah berhenti', required: false })
-    notes?: string | null;
 }
 
 export class MedicalRecordDataItemDto {
@@ -92,8 +73,8 @@ export class MedicalRecordDataItemDto {
     @ApiProperty({ example: '2026-08-08', required: false })
     followUpDate?: string | null;
 
-    @ApiProperty({ type: [MedicalRecordPrescriptionDto] })
-    prescriptions!: MedicalRecordPrescriptionDto[];
+    @ApiProperty({ type: [MedicalRecordPrescriptionResponseDto] })
+    prescriptions!: MedicalRecordPrescriptionResponseDto[];
 
     @ApiProperty({ example: '2026-08-05T11:15:00.000Z' })
     createdAt!: Date;

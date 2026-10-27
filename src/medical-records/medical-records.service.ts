@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
-import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
+import { CreateMedicalRecordResponseDto, MedicalRecordPrescriptionResponseDto } from './dto/create-medical-record-response.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { Role, InvoiceType, AppointmentStatus } from 'generated/prisma/client';
@@ -9,6 +9,7 @@ import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 import { MedicalRecordPaginationDto } from './dto/pagination-medical-record.dto';
 import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-record-response.dto';
 import { PrescriptionDto } from './dto/prescription.dto';
+import { PrescriptionResponseDto } from './dto/prescription-response.dto';
 
 
 @Injectable()
@@ -121,7 +122,7 @@ export class MedicalRecordsService {
         };
     }
 
-    async createPrescriptionMedicalRecordId ( currentUser : ActiveUserData, createPrescriptionDto : PrescriptionDto, medicalRecordId: number) {
+    async createPrescriptionMedicalRecordId ( currentUser : ActiveUserData, createPrescriptionDto : PrescriptionDto, medicalRecordId: number): Promise<PrescriptionResponseDto> {
         // Cek apakah yang akses role nya adalah dokter 
         if (currentUser.role !== Role.DOCTOR) {
             throw new ForbiddenException('You are not allowed to create Medical Record')
@@ -158,7 +159,7 @@ export class MedicalRecordsService {
         return {
             status: 201,
             message: 'New prescription successfully created',
-            newPrescription
+            data: newPrescription
         }
     }
 
