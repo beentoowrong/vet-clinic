@@ -1,16 +1,16 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
-import { CreateMedicalRecordResponseDto, MedicalRecordPrescriptionResponseDto } from './dto/create-medical-record-response.dto';
+import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
-import { Role, InvoiceType, AppointmentStatus } from 'generated/prisma/client';
+import { Role, InvoiceType, AppointmentStatus, Prisma } from 'generated/prisma/client';
 import { CodeGenerator } from 'src/common/utils/code.generator';
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 import { MedicalRecordPaginationDto } from './dto/pagination-medical-record.dto';
 import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-record-response.dto';
-import { PrescriptionDto } from './dto/prescription.dto';
+import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { PrescriptionResponseDto } from './dto/prescription-response.dto';
-
+import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 
 @Injectable()
 export class MedicalRecordsService {
@@ -122,7 +122,7 @@ export class MedicalRecordsService {
         };
     }
 
-    async createPrescriptionMedicalRecordId ( currentUser : ActiveUserData, createPrescriptionDto : PrescriptionDto, medicalRecordId: number): Promise<PrescriptionResponseDto> {
+    async createPrescriptionMedicalRecordId ( currentUser : ActiveUserData, createPrescriptionDto : CreatePrescriptionDto, medicalRecordId: number): Promise<PrescriptionResponseDto> {
         // Cek apakah yang akses role nya adalah dokter 
         if (currentUser.role !== Role.DOCTOR) {
             throw new ForbiddenException('You are not allowed to create Medical Record')
@@ -190,12 +190,6 @@ export class MedicalRecordsService {
         if (updateMedicalRecord.treatment !== undefined) data.treatment = updateMedicalRecord.treatment;
         if (updateMedicalRecord.notes !== undefined) data.notes = updateMedicalRecord.notes;
         if (updateMedicalRecord.followUpDate !== undefined) data.followUpDate = new Date(updateMedicalRecord.followUpDate);
-        if (updateMedicalRecord.prescription !== undefined) {
-            data.prescriptions = {
-                deleteMany: {},
-                create: updateMedicalRecord.prescription,
-            };
-        }
 
         const updated = await this.prismaService.medicalRecord.update({
             where: { id: medicalRecordId },
@@ -213,7 +207,6 @@ export class MedicalRecordsService {
                 treatment: true, 
                 notes: true,
                 followUpDate: true,
-                prescriptions: true,
             }
         })
 
@@ -225,6 +218,102 @@ export class MedicalRecordsService {
                 followUpDate: updated.followUpDate instanceof Date ? updated.followUpDate.toISOString().split('T')[0] : String(updated.followUpDate)
             }
         }
+    }
+
+    async updatePrescription(currentUser: ActiveUserData, updatePrescriptionDto : UpdatePrescriptionDto, medicalRecordId: number , prescriptionId : number) {
+        const me = await this.prismaService.doctor.findUnique({
+            where: {
+                userId: currentUser.id
+            },
+            select: {
+                id: true
+            }
+        })
+
+        if(!me) {
+            throw new ForbiddenException('Doctor profile not found');
+        }
+
+        const existing = await this.prismaService.prescription.findUnique({
+            where: {
+                id: prescriptionId
+            },
+            select: {
+                id: true,
+                medicalRecordId: true,
+                medicalRecord: {
+                    select: {
+                        doctorId: true
+                    }
+                }
+            }
+        })
+
+        if(!existing) {
+            throw new NotFoundException(`Prescription with ID ${prescriptionId} not found`)
+        }
+
+        if(existing.medicalRecord.doctorId !== me.id) {
+            throw new ForbiddenException('Only the assigned Doctor can update this prescription')
+        }
+
+        if (existing.medicalRecordId !== medicalRecordId) {
+            throw new NotFoundException(
+                'Prescription not found in this medical record',
+            );
+        }
+
+        const data: Prisma.PrescriptionUpdateInput = {};
+
+        if (updatePrescriptionDto.medicineName !== undefined) {
+            data.medicineName = updatePrescriptionDto.medicineName;
+        }
+
+        if (updatePrescriptionDto.dosage !== undefined) {
+            data.dosage = updatePrescriptionDto.dosage;
+        }
+
+        if (updatePrescriptionDto.frequency !== undefined) {
+            data.frequency = updatePrescriptionDto.frequency;
+        }
+
+        if (updatePrescriptionDto.duration !== undefined) {
+            data.duration = updatePrescriptionDto.duration;
+        }
+
+        if (updatePrescriptionDto.notes !== undefined) {
+            data.notes = updatePrescriptionDto.notes;
+        }
+
+        if (Object.keys(data).length === 0) {
+            throw new BadRequestException(
+                'At least one field must be provided',
+            );
+        }
+
+        // 7. Update prescription
+        const updated = await this.prismaService.prescription.update({
+            where: {
+                id: prescriptionId,
+                medicalRecordId,
+            },
+            data,
+            select: {
+                id: true,
+                medicalRecordId: true,
+                medicineName: true,
+                dosage: true,
+                frequency: true,
+                duration: true,
+                notes: true,
+            },
+        });
+
+        return {
+            status: 200,
+            message: 'Prescription updated successfully',
+            data: updated,
+        };
     }
 
     async findAllMedicalRecords(currentUser : ActiveUserData, medicalRecordPaginationDto : MedicalRecordPaginationDto): Promise<PaginatedMedicalRecordsResponseDto> {

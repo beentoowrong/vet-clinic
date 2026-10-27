@@ -1,13 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
-  IsArray,
   IsNumber,
   IsOptional,
   IsString,
-  ValidateNested,
 } from 'class-validator';
-import { PrescriptionDto } from './prescription.dto';
 
 export class UpdateMedicalRecordDto {
     @ApiProperty({ example: 4.2, required: false })
@@ -45,12 +41,12 @@ export class UpdateMedicalRecordDto {
     @IsOptional()
     followUpDate?: string;
 
-    // Kalau dikirim, SELURUH resep lama diganti dengan array ini.
-    // Kirim [] untuk hapus semua resep.
-    @ApiProperty({ type: [PrescriptionDto], required: false })
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => PrescriptionDto)
-    @IsOptional()
-    prescription?: PrescriptionDto[] | null;
+    // // Kalau dikirim, SELURUH resep lama diganti dengan array ini.
+    // // Kirim [] untuk hapus semua resep.
+    // @ApiProperty({ type: [PrescriptionDto], required: false })
+    // @IsArray()
+    // @ValidateNested({ each: true })
+    // @Type(() => PrescriptionDto)
+    // @IsOptional()
+    // prescription?: PrescriptionDto[] | null;
 }

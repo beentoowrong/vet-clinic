@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { MedicalRecordPrescriptionResponseDto } from "./create-medical-record-response.dto";
-import { PrescriptionDto } from "./prescription.dto";
+import { PrescriptionDto } from "./create-prescription.dto";
 
 
 export class PrescriptionResponseDto {

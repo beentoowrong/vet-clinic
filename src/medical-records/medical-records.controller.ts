@@ -9,11 +9,11 @@ import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import type { ActiveUserData } from 'src/auth/interface/active-user-data.interface';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
-import { UpdateAppointmentDto } from 'src/appointments/dto/update-appointment.dto';
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 import { MedicalRecordPaginationDto } from './dto/pagination-medical-record.dto';
 import { PaginatedMedicalRecordsResponseDto } from './dto/pagination-medical-record-response.dto';
-import { PrescriptionDto } from './dto/prescription.dto';
+import { CreatePrescriptionDto } from './dto/create-prescription.dto';
+import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 
 
 
@@ -30,7 +30,7 @@ export class MedicalRecordsController {
     @Roles(Role.DOCTOR)
     @ApiResponse({
         status: 201,
-        description: 'User registered successfully',
+        description: 'Medical Record Successfuly Created',
         type: CreateMedicalRecordResponseDto,
     })
     async create(
@@ -55,9 +55,9 @@ export class MedicalRecordsController {
     @Patch(':medicalRecordId')
     @Roles(Role.DOCTOR)
     @ApiResponse({
-        status: 201,
-        description: 'User registered successfully',
-        type: UpdateAppointmentDto,
+        status: 200,
+        description: 'Medical record updated successfully',
+        type: UpdateMedicalRecordDto,
     })
     async updated(
         @CurrentUser() user: ActiveUserData,
@@ -68,11 +68,31 @@ export class MedicalRecordsController {
 
     @Post(':medicalRecordId/prescription')
     @Roles(Role.DOCTOR)
+        @ApiResponse({
+        status: 200,
+        description: 'Prescription successfully created',
+        type: CreatePrescriptionDto,
+    })
     async createPrescription(
         @CurrentUser() user: ActiveUserData,
         @Param('medicalRecordId', ParseIntPipe) medicalRecordId : number,
-        @Body() createPrescriptionDto : PrescriptionDto 
+        @Body() createPrescriptionDto : CreatePrescriptionDto 
     ) {
         return this.medicalRecordService.createPrescriptionMedicalRecordId(user, createPrescriptionDto, medicalRecordId)
+    }
+
+    @Patch(':medicalRecordId/prescription/:prescriptionId')
+    updatePrescription(
+        @CurrentUser() currentUser: ActiveUserData,
+        @Param('medicalRecordId', ParseIntPipe) medicalRecordId: number,
+        @Param('prescriptionId', ParseIntPipe) prescriptionId: number,
+        @Body() updatePrescriptionDto: UpdatePrescriptionDto,
+    ) {
+        return this.medicalRecordService.updatePrescription(
+            currentUser,
+            updatePrescriptionDto,
+            medicalRecordId,
+            prescriptionId,
+        );
     }
 }

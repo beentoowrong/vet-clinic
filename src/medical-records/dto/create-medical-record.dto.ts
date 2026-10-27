@@ -1,4 +1,4 @@
-import { PrescriptionDto } from "./prescription.dto";
+import { CreatePrescriptionDto } from "./create-prescription.dto";
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -46,10 +46,10 @@ export class CreateMedicalRecordDto {
     @IsOptional()
     followUpDate?: string;
 
-    @ApiProperty({ type: [PrescriptionDto], required: false })
+    @ApiProperty({ type: [CreatePrescriptionDto], required: false })
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => PrescriptionDto)
+    @Type(() => CreatePrescriptionDto)
     @IsOptional()
-    prescription?: PrescriptionDto[] | null;
+    prescription?: CreatePrescriptionDto[] | null;
 }
