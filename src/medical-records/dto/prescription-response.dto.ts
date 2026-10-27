@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { PrescriptionDto } from "./create-prescription.dto";
+import { CreatePrescriptionDto } from "./create-prescription.dto";
 
 
 export class PrescriptionResponseDto {
@@ -9,6 +9,6 @@ export class PrescriptionResponseDto {
     @ApiProperty({ example: "Successfully created " })
     message!: string
 
-    @ApiProperty({ type: [PrescriptionDto]})
-    data!: PrescriptionDto
+    @ApiProperty({ type: [CreatePrescriptionDto]})
+    data!: CreatePrescriptionDto
 }
